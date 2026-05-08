@@ -1,0 +1,92 @@
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor and IDE files
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Logs
+*.log
+logs/
+
+# Java / Kotlin / Gradle
+.gradle/
+**/.gradle/
+build/
+**/build/
+out/
+**/out/
+.kotlin/
+**/.kotlin/
+
+# Keep Gradle wrapper artifacts tracked
+!gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/gradle-wrapper.jar
+
+# Keep unusual source folders named build/out tracked if they ever exist
+!**/src/main/**/build/
+!**/src/test/**/build/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# Spring / Eclipse / STS
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Node / pnpm frontend
+node_modules/
+**/node_modules/
+.pnpm-store/
+**/.pnpm-store/
+
+# Frontend build outputs and caches
+dist/
+**/dist/
+.vite/
+**/.vite/
+.turbo/
+**/.turbo/
+.next/
+**/.next/
+coverage/
+**/coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# Test and browser tooling
+test-results/
+**/test-results/
+playwright-report/
+**/playwright-report/
+
+# Spring Boot local runtime
+application-local.yml
+application-local.yaml
+application-local.properties
