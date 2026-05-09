@@ -1,5 +1,9 @@
 set windows-shell := ["pwsh.exe", "-NoLogo","-Command"]
 
+[linux]
+generate-contracts:
+  @cd backend && ./gradlew generateOpenApiDocs
+
 [windows]
-dev:
-   @echo 你好，世界
+generate-contracts:
+   @cd backend; ./gradlew.bat generateOpenApiDocs

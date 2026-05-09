@@ -1,0 +1,21 @@
+spring:
+  config:
+    import: optional:file:.env.dev[.properties]
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: ${REDIS_USERNAME}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DB:15}
+
+springdoc:
+  api-docs:
+    enabled: true
