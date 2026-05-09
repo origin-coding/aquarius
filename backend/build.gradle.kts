@@ -124,8 +124,8 @@ openApi {
     customBootRun {
         args.set(
             listOf(
-                "--spring.profiles.active=dev",
-                "--spring.config.import=optional:file:${projectDir}/.env.dev[.properties]",
+                "--spring.profiles.active=local",
+                "--spring.config.import=optional:file:${projectDir}/.env.local[.properties]",
             )
         )
     }

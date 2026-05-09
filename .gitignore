@@ -85,8 +85,3 @@ test-results/
 **/test-results/
 playwright-report/
 **/playwright-report/
-
-# Spring Boot local runtime
-application-local.yml
-application-local.yaml
-application-local.properties
