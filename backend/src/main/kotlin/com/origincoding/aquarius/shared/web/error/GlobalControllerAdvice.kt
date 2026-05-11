@@ -6,6 +6,7 @@ import com.origincoding.aquarius.shared.error.IssueBody
 import com.origincoding.aquarius.shared.error.MessageArgument
 import com.origincoding.aquarius.shared.error.ResultCode
 import com.origincoding.aquarius.shared.error.ValidationIssueCode
+import com.origincoding.aquarius.shared.error.arg
 import com.origincoding.aquarius.shared.web.response.JsonResponse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.validation.ConstraintViolation
@@ -139,7 +140,7 @@ class GlobalControllerAdvice(
         logger.warn { "HTTP method is not supported: method=${e.method}" }
         return error(
             GlobalResultCode.REQUEST_METHOD_NOT_ALLOWED,
-            arguments = listOf(MessageArgument("method", e.method))
+            arguments = listOf(arg("method", e.method))
         )
     }
 
@@ -148,7 +149,7 @@ class GlobalControllerAdvice(
         logger.warn { "HTTP media type is not supported: contentType=${e.contentType}" }
         return error(
             GlobalResultCode.REQUEST_UNSUPPORTED_MEDIA_TYPE,
-            arguments = e.contentType?.let { listOf(MessageArgument("contentType", it.toString())) }.orEmpty()
+            arguments = e.contentType?.let { listOf(arg("contentType", it)) }.orEmpty()
         )
     }
 
@@ -293,7 +294,7 @@ class GlobalControllerAdvice(
 
         return violation.constraintDescriptor.attributes
             .filterKeys { it in includedNames }
-            .map { (name, value) -> MessageArgument(name, value.toString()) }
+            .map { (name, value) -> arg(name, value) }
     }
 
     private fun unwrapConstraintViolation(error: ObjectError): ConstraintViolation<*>? =
