@@ -2,6 +2,10 @@ spring:
   application:
     name: aquarius
 
+  modulith:
+    events:
+      completion-mode: delete
+
 springdoc:
   api-docs:
     enabled: false
