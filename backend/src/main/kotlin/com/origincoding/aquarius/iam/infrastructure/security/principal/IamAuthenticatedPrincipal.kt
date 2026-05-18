@@ -1,4 +1,4 @@
-package com.origincoding.aquarius.iam.infrastructure.security
+package com.origincoding.aquarius.iam.infrastructure.security.principal
 
 import com.origincoding.aquarius.iam.domain.model.IdentityType
 import com.origincoding.aquarius.shared.security.CurrentUser
@@ -11,10 +11,9 @@ data class IamAuthenticatedPrincipal(
     val identity: String,
     val displayName: String,
 ) : CurrentUserPrincipal {
-    override val currentUser: CurrentUser =
-        CurrentUser(
-            id = userId,
-            username = identity,
-            name = displayName,
-        )
+    override val currentUser: CurrentUser = CurrentUser(
+        id = userId,
+        username = identity,
+        name = displayName,
+    )
 }
