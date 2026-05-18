@@ -40,6 +40,7 @@ class IamSecurityConfiguration(
 
             authorizeHttpRequests {
                 authorize(iamLoginConfigurer.loginRequestMatcher, permitAll)
+                authorize(PathPatternRequestMatcher.pathPattern(HttpMethod.POST, "/iam/auth/refresh-token"), permitAll)
 
                 // When in local profile, allow all requests to open API.
                 if (environment.acceptsProfiles(Profiles.of("local"))) {

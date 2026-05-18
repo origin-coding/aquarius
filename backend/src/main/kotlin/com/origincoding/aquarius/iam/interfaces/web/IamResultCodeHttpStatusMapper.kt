@@ -13,6 +13,7 @@ class IamResultCodeHttpStatusMapper : ResultCodeHttpStatusMapper {
         IamAuthResultCode.ACCESS_DENIED to HttpStatus.FORBIDDEN,
         IamAuthResultCode.INVALID_CAPTCHA to HttpStatus.UNAUTHORIZED,
         IamAuthResultCode.INVALID_CREDENTIALS to HttpStatus.UNAUTHORIZED,
+        IamAuthResultCode.INVALID_REFRESH_TOKEN to HttpStatus.UNAUTHORIZED,
         IamAuthResultCode.USER_DISABLED to HttpStatus.FORBIDDEN,
         IamAuthResultCode.AUTHENTICATION_FAILED to HttpStatus.UNAUTHORIZED,
     )

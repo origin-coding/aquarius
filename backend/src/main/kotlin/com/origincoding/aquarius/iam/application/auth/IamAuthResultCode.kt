@@ -7,6 +7,7 @@ enum class IamAuthResultCode(override val code: String) : ResultCode {
     ACCESS_DENIED("iam.auth.access_denied"),
     INVALID_CAPTCHA("iam.auth.invalid_captcha"),
     INVALID_CREDENTIALS("iam.auth.invalid_credentials"),
+    INVALID_REFRESH_TOKEN("iam.auth.invalid_refresh_token"),
     USER_DISABLED("iam.auth.user_disabled"),
     AUTHENTICATION_FAILED("iam.auth.authentication_failed"),
 }
