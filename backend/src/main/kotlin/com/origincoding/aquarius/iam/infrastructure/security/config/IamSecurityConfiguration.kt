@@ -2,6 +2,7 @@ package com.origincoding.aquarius.iam.infrastructure.security.config
 
 import com.origincoding.aquarius.iam.infrastructure.security.exception.IamAccessDeniedHandler
 import com.origincoding.aquarius.iam.infrastructure.security.exception.IamAuthenticationEntryPoint
+import com.origincoding.aquarius.iam.infrastructure.security.filter.BearerTokenAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
 import org.springframework.security.web.util.matcher.OrRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
@@ -22,6 +24,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher
 @EnableMethodSecurity
 class IamSecurityConfiguration(
     private val iamLoginConfigurer: IamLoginConfigurer,
+    private val bearerTokenAuthenticationFilter: BearerTokenAuthenticationFilter,
     private val iamAuthenticationEntryPoint: IamAuthenticationEntryPoint,
     private val iamAccessDeniedHandler: IamAccessDeniedHandler,
     private val environment: Environment,
@@ -51,6 +54,7 @@ class IamSecurityConfiguration(
                 accessDeniedHandler = iamAccessDeniedHandler
             }
 
+            addFilterBefore<UsernamePasswordAuthenticationFilter>(bearerTokenAuthenticationFilter)
             with(iamLoginConfigurer)
         }
 

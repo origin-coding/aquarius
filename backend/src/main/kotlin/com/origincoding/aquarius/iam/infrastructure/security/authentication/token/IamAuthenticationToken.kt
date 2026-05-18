@@ -1,11 +1,11 @@
 package com.origincoding.aquarius.iam.infrastructure.security.authentication.token
 
-import com.origincoding.aquarius.iam.infrastructure.security.principal.IamAuthenticatedPrincipal
+import com.origincoding.aquarius.shared.security.CurrentUserPrincipal
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 
 class IamAuthenticationToken(
-    private val authenticatedPrincipal: IamAuthenticatedPrincipal,
+    private val authenticatedPrincipal: CurrentUserPrincipal,
     authorities: Collection<GrantedAuthority> = emptyList(),
 ) : AbstractAuthenticationToken(authorities) {
     init {

@@ -37,16 +37,16 @@ class RedisLoginSessionIssuer(
         )
 
         redissonClient
-            .getBucket<String>(accessTokenKey(accessTokenHash), StringCodec.INSTANCE)
+            .getBucket<String>(RedisLoginSessionKeys.accessTokenKey(accessTokenHash), StringCodec.INSTANCE)
             .set(sessionId, properties.accessTokenTtl)
         redissonClient
-            .getBucket<String>(refreshTokenKey(refreshTokenHash), StringCodec.INSTANCE)
+            .getBucket<String>(RedisLoginSessionKeys.refreshTokenKey(refreshTokenHash), StringCodec.INSTANCE)
             .set(sessionId, properties.refreshTokenTtl)
         redissonClient
-            .getBucket<RedisLoginSessionRecord>(sessionKey(sessionId))
+            .getBucket<RedisLoginSessionRecord>(RedisLoginSessionKeys.sessionKey(sessionId))
             .set(record, properties.refreshTokenTtl)
         redissonClient
-            .getSetCache<String>(userSessionsKey(principal.user.id), StringCodec.INSTANCE)
+            .getSetCache<String>(RedisLoginSessionKeys.userSessionsKey(principal.user.id), StringCodec.INSTANCE)
             .add(sessionId, properties.refreshTokenTtl.toMillis(), TimeUnit.MILLISECONDS)
 
         return IssuedLoginSession(
@@ -57,18 +57,6 @@ class RedisLoginSessionIssuer(
             refreshExpiresIn = properties.refreshTokenTtl.toSeconds(),
         )
     }
-
-    private fun accessTokenKey(accessTokenHash: String): String =
-        "aquarius:iam:session:access:$accessTokenHash"
-
-    private fun refreshTokenKey(refreshTokenHash: String): String =
-        "aquarius:iam:session:refresh:$refreshTokenHash"
-
-    private fun sessionKey(sessionId: String): String =
-        "aquarius:iam:session:record:$sessionId"
-
-    private fun userSessionsKey(userId: String): String =
-        "aquarius:iam:session:user-sessions:$userId"
 
     private companion object {
         const val REFRESH_TOKEN_BYTE_LENGTH = 48
