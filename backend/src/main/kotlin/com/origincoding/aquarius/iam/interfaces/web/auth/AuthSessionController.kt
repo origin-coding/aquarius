@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 class AuthSessionController(
     private val loginSessionRefresher: LoginSessionRefresher,
 ) : WebApiSupport {
-    @PostMapping("/refresh-token")
+    @PostMapping("/sessions/refresh-token")
     fun refreshToken(@RequestBody request: RefreshTokenRequest): JsonResponse<RefreshedLoginSession> {
         val refreshToken = request.refreshToken
             ?.takeIf { it.isNotBlank() }

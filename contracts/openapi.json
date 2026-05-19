@@ -10,6 +10,136 @@
       "description": "Generated server url"
     }
   ],
-  "paths": {},
-  "components": {}
+  "paths": {
+    "/iam/auth/sessions/refresh-token": {
+      "post": {
+        "tags": [
+          "auth-session-controller"
+        ],
+        "operationId": "refreshToken",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/WithData"
+                    },
+                    {
+                      "$ref": "#/components/schemas/WithoutData"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RefreshTokenRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        }
+      },
+      "IssueBody": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "field": {
+            "type": "string"
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageArgument"
+            }
+          }
+        }
+      },
+      "JsonResponseRefreshedLoginSession": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageArgument"
+            }
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IssueBody"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IssueBody"
+            }
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "MessageArgument": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "WithData": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/JsonResponseRefreshedLoginSession"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {}
+            }
+          }
+        ]
+      },
+      "WithoutData": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/JsonResponseRefreshedLoginSession"
+          }
+        ]
+      }
+    }
+  }
 }

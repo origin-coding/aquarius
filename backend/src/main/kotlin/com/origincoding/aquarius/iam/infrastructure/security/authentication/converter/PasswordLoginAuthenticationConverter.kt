@@ -16,7 +16,7 @@ class PasswordLoginAuthenticationConverter(
     private val jsonMapper: JsonMapper,
 ) : IamAuthenticationConverter {
     override val requestMatcher: RequestMatcher =
-        PathPatternRequestMatcher.pathPattern(HttpMethod.POST, "/iam/auth/password-login")
+        PathPatternRequestMatcher.pathPattern(HttpMethod.POST, "/iam/auth/sessions/password")
 
     override fun convert(request: HttpServletRequest): Authentication? {
         if (!requestMatcher.matches(request)) {
