@@ -36,3 +36,9 @@ cd backend
 - Before creating or editing database migrations, read `docs/engineering/database-migrations.md` and `.agents/skills/write-db-migrations/SKILL.md`.
 - Before creating or editing database migrations, inspect current entity classes and existing migration files.
 - Do not add foreign keys across module boundaries.
+
+## API Style
+
+- Use Spring-style URL paths rather than Google custom method paths with `:` unless the project explicitly adopts Google AIP conventions later.
+- Keep URL path segments lowercase. Use kebab-case for compound words.
+- Organize IAM authentication session endpoints under `/iam/auth/sessions`.
