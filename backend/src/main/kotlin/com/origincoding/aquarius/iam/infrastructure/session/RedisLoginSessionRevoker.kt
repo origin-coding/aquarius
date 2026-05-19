@@ -1,6 +1,7 @@
 package com.origincoding.aquarius.iam.infrastructure.session
 
 import com.origincoding.aquarius.iam.application.session.LoginSessionRevoker
+import com.origincoding.aquarius.iam.application.session.RevokeAllLoginSessionsCommand
 import com.origincoding.aquarius.iam.application.session.RevokeLoginSessionCommand
 import org.redisson.api.RedissonClient
 import org.redisson.client.codec.StringCodec
@@ -26,14 +27,43 @@ class RedisLoginSessionRevoker(
             return false
         }
 
+        revokeRecord(record)
+
+        return true
+    }
+
+    override fun revokeAll(command: RevokeAllLoginSessionsCommand) {
+        val userSessions = redissonClient
+            .getSetCache<String>(RedisLoginSessionKeys.userSessionsKey(command.userId), StringCodec.INSTANCE)
+        val sessionIds = userSessions.readAll()
+
+        sessionIds.forEach { sessionId ->
+            val sessionBucket = redissonClient
+                .getBucket<RedisLoginSessionRecord>(RedisLoginSessionKeys.sessionKey(sessionId))
+            val record = sessionBucket.get()
+
+            if (record != null) {
+                revokeRecord(record)
+            } else {
+                sessionBucket.delete()
+            }
+        }
+
+        userSessions.delete()
+    }
+
+    private fun revokeRecord(record: RedisLoginSessionRecord) {
+        redissonClient
+            .getBucket<String>(RedisLoginSessionKeys.accessTokenKey(record.accessTokenHash), StringCodec.INSTANCE)
+            .delete()
         redissonClient
             .getBucket<String>(RedisLoginSessionKeys.refreshTokenKey(record.refreshTokenHash), StringCodec.INSTANCE)
             .delete()
-        sessionBucket.delete()
+        redissonClient
+            .getBucket<RedisLoginSessionRecord>(RedisLoginSessionKeys.sessionKey(record.id))
+            .delete()
         redissonClient
             .getSetCache<String>(RedisLoginSessionKeys.userSessionsKey(record.userId), StringCodec.INSTANCE)
-            .remove(sessionId)
-
-        return true
+            .remove(record.id)
     }
 }

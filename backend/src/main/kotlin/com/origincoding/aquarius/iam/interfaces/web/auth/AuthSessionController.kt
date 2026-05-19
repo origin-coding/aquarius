@@ -5,8 +5,10 @@ import com.origincoding.aquarius.iam.application.session.LoginSessionRefresher
 import com.origincoding.aquarius.iam.application.session.LoginSessionRevoker
 import com.origincoding.aquarius.iam.application.session.RefreshLoginSessionCommand
 import com.origincoding.aquarius.iam.application.session.RefreshedLoginSession
+import com.origincoding.aquarius.iam.application.session.RevokeAllLoginSessionsCommand
 import com.origincoding.aquarius.iam.application.session.RevokeLoginSessionCommand
 import com.origincoding.aquarius.shared.error.BusinessException
+import com.origincoding.aquarius.shared.security.CurrentUserProvider
 import com.origincoding.aquarius.shared.web.response.JsonResponse
 import com.origincoding.aquarius.shared.web.response.WebApiSupport
 import org.springframework.http.HttpHeaders
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController
 class AuthSessionController(
     private val loginSessionRefresher: LoginSessionRefresher,
     private val loginSessionRevoker: LoginSessionRevoker,
+    private val currentUserProvider: CurrentUserProvider,
 ) : WebApiSupport {
     @PostMapping("/sessions/refresh-token")
     fun refreshToken(@RequestBody request: RefreshTokenRequest): JsonResponse<RefreshedLoginSession> {
@@ -45,6 +48,15 @@ class AuthSessionController(
         if (!revoked) {
             throw BusinessException(IamAuthResultCode.UNAUTHENTICATED)
         }
+
+        return ok()
+    }
+
+    @DeleteMapping("/sessions")
+    fun logoutAll(): JsonResponse<Unit> {
+        val currentUser = currentUserProvider.currentUser()
+
+        loginSessionRevoker.revokeAll(RevokeAllLoginSessionsCommand(currentUser.id))
 
         return ok()
     }

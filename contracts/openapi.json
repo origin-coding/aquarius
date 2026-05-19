@@ -75,6 +75,33 @@
         }
       }
     },
+    "/iam/auth/sessions": {
+      "delete": {
+        "tags": [
+          "auth-session-controller"
+        ],
+        "operationId": "logoutAll",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/WithData"
+                    },
+                    {
+                      "$ref": "#/components/schemas/WithoutData"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/iam/auth/sessions/current": {
       "delete": {
         "tags": [
@@ -156,7 +183,7 @@
           "requestId": {
             "type": "string"
           },
-          "warnings": {
+          "issues": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IssueBody"
@@ -165,7 +192,7 @@
           "code": {
             "type": "string"
           },
-          "issues": {
+          "warnings": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IssueBody"
@@ -232,7 +259,7 @@
           "requestId": {
             "type": "string"
           },
-          "warnings": {
+          "issues": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IssueBody"
@@ -241,7 +268,7 @@
           "code": {
             "type": "string"
           },
-          "issues": {
+          "warnings": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IssueBody"
@@ -265,7 +292,7 @@
           "requestId": {
             "type": "string"
           },
-          "warnings": {
+          "issues": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IssueBody"
@@ -274,7 +301,7 @@
           "code": {
             "type": "string"
           },
-          "issues": {
+          "warnings": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/IssueBody"
