@@ -47,6 +47,43 @@
           }
         }
       }
+    },
+    "/iam/auth/sessions/current": {
+      "delete": {
+        "tags": [
+          "auth-session-controller"
+        ],
+        "operationId": "logoutCurrent",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/WithData"
+                    },
+                    {
+                      "$ref": "#/components/schemas/WithoutData"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -92,12 +129,6 @@
           "requestId": {
             "type": "string"
           },
-          "issues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IssueBody"
-            }
-          },
           "warnings": {
             "type": "array",
             "items": {
@@ -106,6 +137,12 @@
           },
           "code": {
             "type": "string"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IssueBody"
+            }
           }
         }
       },
@@ -130,6 +167,9 @@
             "properties": {
               "data": {}
             }
+          },
+          {
+            "$ref": "#/components/schemas/JsonResponseUnit"
           }
         ]
       },
@@ -137,8 +177,44 @@
         "allOf": [
           {
             "$ref": "#/components/schemas/JsonResponseRefreshedLoginSession"
+          },
+          {
+            "$ref": "#/components/schemas/JsonResponseUnit"
           }
         ]
+      },
+      "JsonResponseUnit": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageArgument"
+            }
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IssueBody"
+            }
+          },
+          "code": {
+            "type": "string"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IssueBody"
+            }
+          }
+        }
       }
     }
   }
