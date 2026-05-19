@@ -40,6 +40,7 @@ class IamSecurityConfiguration(
 
             authorizeHttpRequests {
                 authorize(iamLoginConfigurer.loginRequestMatcher, permitAll)
+                authorize(PathPatternRequestMatcher.pathPattern(HttpMethod.GET, "/iam/captchas/password-login"), permitAll)
                 authorize(PathPatternRequestMatcher.pathPattern(HttpMethod.POST, "/iam/auth/sessions/refresh-token"), permitAll)
 
                 // When in local profile, allow all requests to open API.

@@ -48,6 +48,33 @@
         }
       }
     },
+    "/iam/captchas/password-login": {
+      "get": {
+        "tags": [
+          "iam-captcha-controller"
+        ],
+        "operationId": "issuePasswordLoginCaptcha",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/WithData"
+                    },
+                    {
+                      "$ref": "#/components/schemas/WithoutData"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/iam/auth/sessions/current": {
       "delete": {
         "tags": [
@@ -169,6 +196,9 @@
             }
           },
           {
+            "$ref": "#/components/schemas/JsonResponseIssuedCaptcha"
+          },
+          {
             "$ref": "#/components/schemas/JsonResponseUnit"
           }
         ]
@@ -179,9 +209,45 @@
             "$ref": "#/components/schemas/JsonResponseRefreshedLoginSession"
           },
           {
+            "$ref": "#/components/schemas/JsonResponseIssuedCaptcha"
+          },
+          {
             "$ref": "#/components/schemas/JsonResponseUnit"
           }
         ]
+      },
+      "JsonResponseIssuedCaptcha": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageArgument"
+            }
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IssueBody"
+            }
+          },
+          "code": {
+            "type": "string"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IssueBody"
+            }
+          }
+        }
       },
       "JsonResponseUnit": {
         "type": "object",
