@@ -6,6 +6,7 @@ import com.origincoding.aquarius.iam.application.session.LoginSessionPrincipal
 import com.origincoding.aquarius.shared.security.CurrentUser
 import com.origincoding.aquarius.shared.security.CurrentUserPrincipal
 import com.origincoding.aquarius.shared.web.response.JsonResponse
+import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
@@ -22,6 +23,15 @@ class IamAuthenticationSuccessHandler(
     private val loginSessionIssuer: LoginSessionIssuer,
     private val jsonMapper: JsonMapper,
 ) : AuthenticationSuccessHandler {
+    override fun onAuthenticationSuccess(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        chain: FilterChain,
+        authentication: Authentication,
+    ) {
+        onAuthenticationSuccess(request, response, authentication)
+    }
+
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,
         response: HttpServletResponse,
