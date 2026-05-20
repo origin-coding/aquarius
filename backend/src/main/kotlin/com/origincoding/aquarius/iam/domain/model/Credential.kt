@@ -11,7 +11,7 @@ import jakarta.persistence.Table
 @Table(name = "iam_credential")
 class Credential(
     @Column(nullable = false, length = 36)
-    var userId: String,
+    var identityId: String,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32)

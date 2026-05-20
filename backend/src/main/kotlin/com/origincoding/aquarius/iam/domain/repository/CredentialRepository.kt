@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface CredentialRepository : JpaRepository<Credential, String>, QuerydslPredicateExecutor<Credential> {
-    fun findByUserIdAndCredentialType(userId: String, credentialType: CredentialType): Credential?
+    fun findByIdentityIdAndCredentialType(identityId: String, credentialType: CredentialType): Credential?
 }

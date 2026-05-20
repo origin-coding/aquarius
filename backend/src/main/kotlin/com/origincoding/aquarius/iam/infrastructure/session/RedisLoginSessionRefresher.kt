@@ -25,6 +25,9 @@ class RedisLoginSessionRefresher(
         val sessionBucket = redissonClient
             .getBucket<RedisLoginSessionRecord>(RedisLoginSessionKeys.sessionKey(sessionId))
         val currentRecord = sessionBucket.get() ?: return null
+        val remainingRefreshTtl = remainingRefreshTtl(currentRecord.refreshExpiresAt)
+            .takeIf { !it.isZero }
+            ?: return null
 
         val newAccessToken = tokenGenerator.generate()
         val newRefreshToken = tokenGenerator.generate(REFRESH_TOKEN_BYTE_LENGTH)
@@ -35,6 +38,8 @@ class RedisLoginSessionRefresher(
             refreshTokenHash = newRefreshTokenHash,
         )
 
+        // TODO: Make refresh rotation atomic before supporting high-concurrency or replay-sensitive deployments.
+        // This delete-then-set sequence can race when the same refresh token is submitted concurrently.
         redissonClient
             .getBucket<String>(RedisLoginSessionKeys.accessTokenKey(currentRecord.accessTokenHash), StringCodec.INSTANCE)
             .delete()
@@ -46,15 +51,15 @@ class RedisLoginSessionRefresher(
             .set(sessionId, properties.accessTokenTtl)
         redissonClient
             .getBucket<String>(RedisLoginSessionKeys.refreshTokenKey(newRefreshTokenHash), StringCodec.INSTANCE)
-            .set(sessionId, remainingRefreshTtl(currentRecord.refreshExpiresAt))
-        sessionBucket.set(refreshedRecord, remainingRefreshTtl(currentRecord.refreshExpiresAt))
+            .set(sessionId, remainingRefreshTtl)
+        sessionBucket.set(refreshedRecord, remainingRefreshTtl)
 
         return RefreshedLoginSession(
             sessionId = sessionId,
             accessToken = newAccessToken,
             refreshToken = newRefreshToken,
             expiresIn = properties.accessTokenTtl.toSeconds(),
-            refreshExpiresIn = remainingRefreshTtl(currentRecord.refreshExpiresAt).toSeconds(),
+            refreshExpiresIn = remainingRefreshTtl.toSeconds(),
         )
     }
 

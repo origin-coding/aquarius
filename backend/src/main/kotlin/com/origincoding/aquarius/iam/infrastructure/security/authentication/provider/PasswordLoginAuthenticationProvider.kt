@@ -60,8 +60,8 @@ class PasswordLoginAuthenticationProvider(
             throw DisabledException("User is disabled")
         }
 
-        val credential = credentialRepository.findByUserIdAndCredentialType(
-            user.id,
+        val credential = credentialRepository.findByIdentityIdAndCredentialType(
+            identity.id,
             CredentialType.PASSWORD,
         ) ?: throw BadCredentialsException(INVALID_CREDENTIALS_MESSAGE)
 

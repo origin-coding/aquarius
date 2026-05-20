@@ -48,15 +48,15 @@ CREATE TABLE iam_credential
     created_by      VARCHAR(64)              NOT NULL,
     updated_by      VARCHAR(64)              NOT NULL,
     deleted         BOOLEAN                  NOT NULL DEFAULT FALSE,
-    user_id         VARCHAR(36)              NOT NULL,
+    identity_id     VARCHAR(36)              NOT NULL,
     credential_type VARCHAR(32)              NOT NULL,
     secret          VARCHAR(255)             NOT NULL,
     PRIMARY KEY (uuid),
-    CONSTRAINT iam_credential_user_fk FOREIGN KEY (user_id) REFERENCES iam_user (uuid)
+    CONSTRAINT iam_credential_identity_fk FOREIGN KEY (identity_id) REFERENCES iam_identity (uuid)
 );
 
-CREATE UNIQUE INDEX iam_credential_user_id_credential_type_uidx
-    ON iam_credential (user_id, credential_type)
+CREATE UNIQUE INDEX iam_credential_identity_id_credential_type_uidx
+    ON iam_credential (identity_id, credential_type)
     WHERE deleted = FALSE;
 
-CREATE INDEX iam_credential_user_id_idx ON iam_credential (user_id);
+CREATE INDEX iam_credential_identity_id_idx ON iam_credential (identity_id);

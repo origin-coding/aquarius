@@ -145,7 +145,7 @@ class PasswordLoginAuthenticationProviderTests {
             it.uuid = "identity-id"
         }
         val credential = Credential(
-            userId = "user-id",
+            identityId = "identity-id",
             credentialType = CredentialType.PASSWORD,
             secret = passwordEncoder.encode("correct-password")!!,
         ).also {
@@ -157,7 +157,7 @@ class PasswordLoginAuthenticationProviderTests {
         ).thenReturn(identity)
         `when`(userRepository.findById("user-id")).thenReturn(Optional.of(user))
         `when`(
-            credentialRepository.findByUserIdAndCredentialType("user-id", CredentialType.PASSWORD)
+            credentialRepository.findByIdentityIdAndCredentialType("identity-id", CredentialType.PASSWORD)
         ).thenReturn(if (includeCredential) credential else null)
     }
 

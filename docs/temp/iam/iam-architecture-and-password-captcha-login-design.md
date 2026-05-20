@@ -38,8 +38,7 @@ iam
       filter
       principal
     captcha
-    token
-    property
+    session
 ```
 
 ## Package Responsibilities
@@ -56,9 +55,7 @@ iam
 
 `iam.infrastructure.captcha` contains captcha implementations, such as the local fixed-code verifier and future Redis/image captcha implementations.
 
-`iam.infrastructure.token` contains token issuing, parsing, persistence, or revocation implementations.
-
-`iam.infrastructure.property` should only contain infrastructure configuration properties when needed. There is no need to keep a top-level `property` package for a single setting.
+`iam.infrastructure.session` contains opaque token generation, token hashing, Redis-backed login session persistence, refresh, resolution, and revocation implementations.
 
 ## Migration Mapping From Previous Project
 
@@ -74,7 +71,8 @@ security.filter     -> iam.infrastructure.security.filter
 security.handler    -> iam.infrastructure.security.authentication.handler
 security.dto        -> iam.interfaces.web.dto or shared.error
 security.service    -> iam.application.auth or iam.application.session
-security.token      -> iam.infrastructure.security.authentication.token or iam.infrastructure.token
+security.token      -> iam.infrastructure.security.authentication.token
+session/token store -> iam.infrastructure.session
 ```
 
 ## Design Principles
@@ -215,7 +213,7 @@ The HTTP API should also keep these operations separate:
 
 ```text
 GET  /iam/captchas/password-login
-POST /iam/auth/login
+POST /iam/auth/sessions/password
 ```
 
 The issuing endpoint is called when the client needs a captcha challenge. The login endpoint receives `loginName`, `password`, `captchaChallengeId`, and `captchaCode`, then verifies the captcha before authenticating the password.
@@ -296,7 +294,7 @@ class PasswordLoginAuthenticationConverter(
     private val objectMapper: ObjectMapper,
 ) : IamAuthenticationConverter {
     override val requestMatcher: RequestMatcher =
-        AntPathRequestMatcher("/iam/auth/login", "POST")
+        PathPatternRequestMatcher.pathPattern(HttpMethod.POST, "/iam/auth/sessions/password")
 
     override fun convert(request: HttpServletRequest): Authentication? {
         if (!requestMatcher.matches(request)) {
@@ -343,7 +341,7 @@ The password login entry point should directly use Spring Security instead of an
 Do not keep a parallel controller login flow. The login request should be owned by the Spring Security filter chain:
 
 ```text
-POST /iam/auth/login
+POST /iam/auth/sessions/password
   -> AuthenticationFilter
   -> PasswordLoginAuthenticationConverter
   -> PasswordLoginAuthenticationToken
@@ -370,9 +368,28 @@ PasswordLoginAuthenticationProvider.authenticate(...)
   4. Find identity.
   5. Find user.
   6. Check user status.
-  7. Find password credential.
+  7. Find password credential for the matched identity.
   8. Verify password.
   9. Return an authenticated token.
+```
+
+Credential ownership follows the authentication identity:
+
+```text
+User 1 - N Identity
+Identity 1 - N Credential
+```
+
+Credentials should be attached to the identity used for authentication, not directly to the
+user. This keeps password, email-code, phone-code, passkey, and external-login credentials
+independent. It also avoids forcing every login identity of a user to share the same password
+credential.
+
+Current schema direction:
+
+```text
+iam_credential.identity_id -> iam_identity.uuid
+UNIQUE(identity_id, credential_type) WHERE deleted = FALSE
 ```
 
 This does not mean all rules should be written directly inside the provider. The provider should orchestrate the flow and delegate concrete rules to focused components:
