@@ -9,3 +9,9 @@ spring:
 springdoc:
   api-docs:
     enabled: false
+
+aquarius:
+  iam:
+    bootstrap:
+      admin:
+        enabled: false
