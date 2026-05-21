@@ -1,6 +1,6 @@
-# IAM Architecture and Password Captcha Login Design
+# IAM Password Login Architecture
 
-Status: temporary draft
+Status: accepted initial design
 
 ## Context
 
