@@ -119,8 +119,8 @@ tasks.withType<Test> {
 }
 
 openApi {
-    outputDir.set(file("${rootProject.projectDir}/../contracts"))
-    outputFileName.set("openapi.json")
+    outputDir.set(file("${rootProject.projectDir}/../contracts/generated"))
+    outputFileName.set("openapi.spring.json")
 
     customBootRun {
         args.set(

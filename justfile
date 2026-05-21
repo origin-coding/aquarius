@@ -3,6 +3,7 @@ set windows-shell := ["pwsh.exe", "-NoLogo","-Command"]
 [windows]
 generate-contracts:
    @cd backend; ./gradlew.bat generateOpenApiDocs
+   @node scripts/merge-openapi.mjs
 
 [windows]
 migration description="fill_in_description":
