@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    "./generated/schema": "./src/generated/schema.ts"
+  },
   "scripts": {
     "generate": "openapi-typescript ../../../contracts/openapi.json -o src/generated/schema.ts",
     "typecheck": "tsc --noEmit"
-  },
-  "exports": {
-    "./generated/schema": "./src/generated/schema.ts"
   },
   "devDependencies": {
     "openapi-typescript": "7.13.0",

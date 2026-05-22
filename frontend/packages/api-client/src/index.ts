@@ -1,9 +1,6 @@
 export { createAquariusApiClient, api } from "./client";
 export type { AquariusApiClient, CreateApiClientOptions } from "./client";
-export {
-  createMemoryAuthTokenStore,
-  createSingleFlightRefresh,
-} from "./auth";
+export { createMemoryAuthTokenStore, createSingleFlightRefresh } from "./auth";
 export type {
   AuthExpiredReason,
   AuthTokenState,
@@ -13,12 +10,5 @@ export type {
   MaybePromise,
   RefreshAccessToken,
 } from "./auth";
-export {
-  getApiErrorCode,
-  isApiErrorBody,
-} from "./errors";
-export type {
-  ApiErrorBody,
-  IssueBody,
-  MessageArgument,
-} from "./errors";
+export { getApiErrorCode, isApiErrorBody } from "./errors";
+export type { ApiErrorBody, IssueBody, MessageArgument } from "./errors";

@@ -2,14 +2,23 @@
   "name": "frontend",
   "version": "1.0.0",
   "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
+  "type": "module",
   "main": "index.js",
   "scripts": {
+    "format": "oxfmt .",
+    "format:check": "oxfmt . --check",
     "generate:api-types": "pnpm --filter @aquarius/api-types generate",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint . --fix",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm --filter @aquarius/api-client test"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "devDependencies": {
+    "oxfmt": "0.51.0",
+    "oxlint": "1.66.0"
+  },
   "packageManager": "pnpm@10.33.0"
 }

@@ -36,7 +36,9 @@ export type AuthTokenStore = {
 
 export type RefreshAccessToken = () => Promise<AuthTokens | null>;
 
-export function createMemoryAuthTokenStore(initialTokens: AuthTokenStateInput = {}): AuthTokenStore {
+export function createMemoryAuthTokenStore(
+  initialTokens: AuthTokenStateInput = {},
+): AuthTokenStore {
   let tokenState: AuthTokenState = normalizeTokenState(initialTokens);
 
   return {
@@ -73,7 +75,9 @@ export function tokenExpiresAt(expiresInSeconds: number, now = dayjs()): number 
   return now.add(expiresInSeconds, "second").valueOf();
 }
 
-export function createSingleFlightRefresh(refreshAccessToken: RefreshAccessToken): RefreshAccessToken {
+export function createSingleFlightRefresh(
+  refreshAccessToken: RefreshAccessToken,
+): RefreshAccessToken {
   let refreshPromise: Promise<AuthTokens | null> | null = null;
 
   return async () => {

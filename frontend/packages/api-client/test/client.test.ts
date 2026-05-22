@@ -1,13 +1,13 @@
-import {describe, expect, it, vi} from "vitest";
-import {createMemoryAuthTokenStore, createAquariusApiClient} from "../src";
+import { describe, expect, it, vi } from "vitest";
+import { createMemoryAuthTokenStore, createAquariusApiClient } from "../src";
 
 describe("Aquarius API client auth", () => {
   it("adds the access token to requests", async () => {
-    const store = createMemoryAuthTokenStore({accessToken: "access-1"});
+    const store = createMemoryAuthTokenStore({ accessToken: "access-1" });
     const fetchMock = vi.fn(async (request: RequestInfo | URL) => {
       const headers = new Headers((request as Request).headers);
       expect(headers.get("Authorization")).toBe("Bearer access-1");
-      return jsonResponse({code: "ok", data: {}});
+      return jsonResponse({ code: "ok", data: {} });
     });
 
     const client = createAquariusApiClient({
@@ -25,7 +25,7 @@ describe("Aquarius API client auth", () => {
     const fetchMock = vi.fn(async (request: RequestInfo | URL) => {
       const headers = new Headers((request as Request).headers);
       expect(headers.has("Authorization")).toBe(false);
-      return jsonResponse({code: "ok", data: {}});
+      return jsonResponse({ code: "ok", data: {} });
     });
 
     const client = createAquariusApiClient({
@@ -50,7 +50,7 @@ describe("Aquarius API client auth", () => {
       const authorization = (request as Request).headers.get("Authorization");
 
       if (url.pathname === "/iam/auth/sessions/refresh-token") {
-        expect(await (request as Request).json()).toEqual({refreshToken: "refresh-1"});
+        expect(await (request as Request).json()).toEqual({ refreshToken: "refresh-1" });
         return jsonResponse({
           code: "ok",
           data: {
@@ -65,11 +65,11 @@ describe("Aquarius API client auth", () => {
       protectedRequestCount += 1;
 
       if (authorization === "Bearer access-1") {
-        return jsonResponse({code: "iam.auth.unauthenticated"}, 401);
+        return jsonResponse({ code: "iam.auth.unauthenticated" }, 401);
       }
 
       expect(authorization).toBe("Bearer access-2");
-      return jsonResponse({code: "ok"});
+      return jsonResponse({ code: "ok" });
     });
 
     const client = createAquariusApiClient({
@@ -97,7 +97,9 @@ describe("Aquarius API client auth", () => {
       refreshToken: "refresh-1",
     });
     const onAuthExpired = vi.fn();
-    const fetchMock = vi.fn(async () => jsonResponse({code: "iam.auth.invalid_refresh_token"}, 401));
+    const fetchMock = vi.fn(async () =>
+      jsonResponse({ code: "iam.auth.invalid_refresh_token" }, 401),
+    );
 
     const client = createAquariusApiClient({
       baseUrl: "http://api.test",
@@ -107,7 +109,7 @@ describe("Aquarius API client auth", () => {
     });
 
     await client.POST("/iam/auth/sessions/refresh-token", {
-      body: {refreshToken: "refresh-1"},
+      body: { refreshToken: "refresh-1" },
     });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -124,10 +126,10 @@ describe("Aquarius API client auth", () => {
       const url = requestUrl(request);
 
       if (url.pathname === "/iam/auth/sessions/refresh-token") {
-        return jsonResponse({code: "iam.auth.invalid_refresh_token"}, 401);
+        return jsonResponse({ code: "iam.auth.invalid_refresh_token" }, 401);
       }
 
-      return jsonResponse({code: "iam.auth.unauthenticated"}, 401);
+      return jsonResponse({ code: "iam.auth.unauthenticated" }, 401);
     });
 
     const client = createAquariusApiClient({
@@ -143,7 +145,7 @@ describe("Aquarius API client auth", () => {
     expect(await store.getAccessToken()).toBeNull();
     expect(await store.getRefreshToken()).toBeNull();
     expect(onAuthExpired).toHaveBeenCalledWith(
-      expect.objectContaining({cause: "refresh-unavailable"}),
+      expect.objectContaining({ cause: "refresh-unavailable" }),
     );
   });
 });
