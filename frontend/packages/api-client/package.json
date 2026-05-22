@@ -1,0 +1,22 @@
+{
+  "name": "@aquarius/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@aquarius/api-types": "workspace:*",
+    "dayjs": "1.11.20",
+    "openapi-fetch": "0.17.0"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vitest": "4.1.7"
+  }
+}

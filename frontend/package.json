@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generate:api-types": "pnpm --filter @aquarius/api-types generate",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm --filter @aquarius/api-client test"
   },
   "keywords": [],
   "author": "",

@@ -1,0 +1,17 @@
+{
+  "name": "@aquarius/api-types",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "openapi-typescript ../../../contracts/openapi.json -o src/generated/schema.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    "./generated/schema": "./src/generated/schema.ts"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0",
+    "typescript": "6.0.3"
+  }
+}
