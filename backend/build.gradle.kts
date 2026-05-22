@@ -9,7 +9,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "2.3.20"
 
-    // SpringDoc OpenAPI's gradle plugin
+    // SpringDoc OpenAPI's Gradle plugin
     id("com.github.psxpaul.execfork") version "0.2.2"
     id("org.springdoc.openapi-gradle-plugin") version "1.9.0"
 
@@ -24,15 +24,6 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
     }
-}
-
-repositories {
-    maven { url = uri("https://maven.aliyun.com/repository/central") }
-    maven { url = uri("https://maven.aliyun.com/repository/public") }
-    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-    maven { url = uri("https://maven.aliyun.com/repository/apache-snapshots") }
-    mavenCentral()
-    mavenLocal()
 }
 
 extra["springModulithVersion"] = "2.0.6"
@@ -84,6 +75,10 @@ dependencies {
     implementation("io.github.openfeign.querydsl:querydsl-core:7.1")
     implementation("io.github.openfeign.querydsl:querydsl-jpa:7.1")
     ksp("io.github.openfeign.querydsl:querydsl-ksp-codegen:7.1")
+    // Kotlin JDSL
+    implementation("com.linecorp.kotlin-jdsl:jpql-dsl:3.9.0")
+    implementation("com.linecorp.kotlin-jdsl:jpql-render:3.9.0")
+    implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-boot4-support:3.9.0")
     // Easy Captcha & nashorn-core for arithmetic expression
     implementation("com.github.whvcse:easy-captcha:1.6.2")
     implementation("org.openjdk.nashorn:nashorn-core:15.7")
