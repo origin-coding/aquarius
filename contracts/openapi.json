@@ -33,14 +33,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/WithData"
-                    },
-                    {
-                      "$ref": "#/components/schemas/WithoutData"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/JsonResponseRefreshedLoginSession"
                 }
               }
             }
@@ -60,14 +53,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/WithData"
-                    },
-                    {
-                      "$ref": "#/components/schemas/WithoutData"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/JsonResponseIssuedCaptcha"
                 }
               }
             }
@@ -87,14 +73,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/WithData"
-                    },
-                    {
-                      "$ref": "#/components/schemas/WithoutData"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/JsonResponseUnit"
                 }
               }
             }
@@ -124,14 +103,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/WithData"
-                    },
-                    {
-                      "$ref": "#/components/schemas/WithoutData"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/JsonResponseUnit"
                 }
               }
             }
@@ -260,37 +232,22 @@
         }
       },
       "JsonResponseRefreshedLoginSession": {
-        "type": "object",
-        "properties": {
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/JsonResponseBase"
           },
-          "arguments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MessageArgument"
-            }
-          },
-          "requestId": {
-            "type": "string"
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IssueBody"
-            }
-          },
-          "code": {
-            "type": "string"
-          },
-          "issues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IssueBody"
-            }
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/RefreshedLoginSession"
+              }
+            },
+            "required": [
+              "data"
+            ]
           }
-        }
+        ]
       },
       "MessageArgument": {
         "type": "object",
@@ -303,77 +260,36 @@
           }
         }
       },
-      "WithData": {
+      "JsonResponseIssuedCaptcha": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/JsonResponseRefreshedLoginSession"
+            "$ref": "#/components/schemas/JsonResponseBase"
           },
           {
             "type": "object",
             "properties": {
-              "data": {}
-            }
-          },
-          {
-            "$ref": "#/components/schemas/JsonResponseIssuedCaptcha"
-          },
-          {
-            "$ref": "#/components/schemas/JsonResponseUnit"
+              "data": {
+                "$ref": "#/components/schemas/IssuedCaptcha"
+              }
+            },
+            "required": [
+              "data"
+            ]
           }
         ]
-      },
-      "WithoutData": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/JsonResponseRefreshedLoginSession"
-          },
-          {
-            "$ref": "#/components/schemas/JsonResponseIssuedCaptcha"
-          },
-          {
-            "$ref": "#/components/schemas/JsonResponseUnit"
-          }
-        ]
-      },
-      "JsonResponseIssuedCaptcha": {
-        "type": "object",
-        "properties": {
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "arguments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MessageArgument"
-            }
-          },
-          "requestId": {
-            "type": "string"
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IssueBody"
-            }
-          },
-          "code": {
-            "type": "string"
-          },
-          "issues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IssueBody"
-            }
-          }
-        }
       },
       "JsonResponseUnit": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/JsonResponseBase"
+          }
+        ]
+      },
+      "JsonResponseBase": {
         "type": "object",
         "properties": {
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
+          "code": {
+            "type": "string"
           },
           "arguments": {
             "type": "array",
@@ -381,8 +297,11 @@
               "$ref": "#/components/schemas/MessageArgument"
             }
           },
-          "requestId": {
-            "type": "string"
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IssueBody"
+            }
           },
           "warnings": {
             "type": "array",
@@ -390,16 +309,81 @@
               "$ref": "#/components/schemas/IssueBody"
             }
           },
-          "code": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "timestamp",
+          "requestId"
+        ]
+      },
+      "RefreshedLoginSession": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
             "type": "string"
           },
-          "issues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IssueBody"
-            }
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "tokenType": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "refreshExpiresIn": {
+            "type": "integer",
+            "format": "int64"
           }
-        }
+        },
+        "required": [
+          "sessionId",
+          "accessToken",
+          "refreshToken",
+          "expiresIn",
+          "refreshExpiresIn"
+        ]
+      },
+      "IssuedCaptcha": {
+        "type": "object",
+        "properties": {
+          "captchaChallengeId": {
+            "type": "string"
+          },
+          "delivery": {
+            "type": "string",
+            "enum": [
+              "IMAGE",
+              "EMAIL",
+              "LOCAL"
+            ]
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "imageBase64": {
+            "type": "string"
+          },
+          "imageContentType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "captchaChallengeId",
+          "delivery"
+        ]
       },
       "PasswordLoginRequest": {
         "type": "object",
@@ -449,44 +433,6 @@
             "$ref": "#/components/schemas/JsonResponseBase"
           }
         ]
-      },
-      "JsonResponseBase": {
-        "type": "object",
-        "required": [
-          "code",
-          "timestamp",
-          "requestId"
-        ],
-        "properties": {
-          "code": {
-            "type": "string"
-          },
-          "arguments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MessageArgument"
-            }
-          },
-          "issues": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IssueBody"
-            }
-          },
-          "warnings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/IssueBody"
-            }
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "requestId": {
-            "type": "string"
-          }
-        }
       },
       "LoginSuccessResponse": {
         "type": "object",

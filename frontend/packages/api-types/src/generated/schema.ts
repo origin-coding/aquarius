@@ -97,40 +97,44 @@ export interface components {
             field?: string;
             arguments?: components["schemas"]["MessageArgument"][];
         };
-        JsonResponseRefreshedLoginSession: {
-            /** Format: date-time */
-            timestamp?: string;
-            arguments?: components["schemas"]["MessageArgument"][];
-            requestId?: string;
-            warnings?: components["schemas"]["IssueBody"][];
-            code?: string;
-            issues?: components["schemas"]["IssueBody"][];
+        JsonResponseRefreshedLoginSession: components["schemas"]["JsonResponseBase"] & {
+            data: components["schemas"]["RefreshedLoginSession"];
         };
         MessageArgument: {
             name?: string;
             value?: string;
         };
-        WithData: components["schemas"]["JsonResponseRefreshedLoginSession"] & {
-            data?: unknown;
-        } & components["schemas"]["JsonResponseIssuedCaptcha"] & components["schemas"]["JsonResponseUnit"];
-        WithoutData: components["schemas"]["JsonResponseRefreshedLoginSession"] & components["schemas"]["JsonResponseIssuedCaptcha"] & components["schemas"]["JsonResponseUnit"];
-        JsonResponseIssuedCaptcha: {
-            /** Format: date-time */
-            timestamp?: string;
-            arguments?: components["schemas"]["MessageArgument"][];
-            requestId?: string;
-            warnings?: components["schemas"]["IssueBody"][];
-            code?: string;
-            issues?: components["schemas"]["IssueBody"][];
+        JsonResponseIssuedCaptcha: components["schemas"]["JsonResponseBase"] & {
+            data: components["schemas"]["IssuedCaptcha"];
         };
-        JsonResponseUnit: {
-            /** Format: date-time */
-            timestamp?: string;
+        JsonResponseUnit: components["schemas"]["JsonResponseBase"];
+        JsonResponseBase: {
+            code: string;
             arguments?: components["schemas"]["MessageArgument"][];
-            requestId?: string;
-            warnings?: components["schemas"]["IssueBody"][];
-            code?: string;
             issues?: components["schemas"]["IssueBody"][];
+            warnings?: components["schemas"]["IssueBody"][];
+            /** Format: date-time */
+            timestamp: string;
+            requestId: string;
+        };
+        RefreshedLoginSession: {
+            sessionId: string;
+            accessToken: string;
+            refreshToken: string;
+            tokenType?: string;
+            /** Format: int64 */
+            expiresIn: number;
+            /** Format: int64 */
+            refreshExpiresIn: number;
+        };
+        IssuedCaptcha: {
+            captchaChallengeId: string;
+            /** @enum {string} */
+            delivery: "IMAGE" | "EMAIL" | "LOCAL";
+            /** Format: int64 */
+            expiresIn?: number;
+            imageBase64?: string;
+            imageContentType?: string;
         };
         PasswordLoginRequest: {
             loginName: string;
@@ -143,15 +147,6 @@ export interface components {
             data: components["schemas"]["LoginSuccessResponse"];
         };
         JsonResponseError: components["schemas"]["JsonResponseBase"];
-        JsonResponseBase: {
-            code: string;
-            arguments?: components["schemas"]["MessageArgument"][];
-            issues?: components["schemas"]["IssueBody"][];
-            warnings?: components["schemas"]["IssueBody"][];
-            /** Format: date-time */
-            timestamp: string;
-            requestId: string;
-        };
         LoginSuccessResponse: {
             session: components["schemas"]["IssuedLoginSession"];
             user: components["schemas"]["CurrentUser"];
@@ -201,7 +196,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["WithData"] | components["schemas"]["WithoutData"];
+                    "*/*": components["schemas"]["JsonResponseRefreshedLoginSession"];
                 };
             };
         };
@@ -221,7 +216,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["WithData"] | components["schemas"]["WithoutData"];
+                    "*/*": components["schemas"]["JsonResponseIssuedCaptcha"];
                 };
             };
         };
@@ -241,7 +236,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["WithData"] | components["schemas"]["WithoutData"];
+                    "*/*": components["schemas"]["JsonResponseUnit"];
                 };
             };
         };
@@ -263,7 +258,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["WithData"] | components["schemas"]["WithoutData"];
+                    "*/*": components["schemas"]["JsonResponseUnit"];
                 };
             };
         };
