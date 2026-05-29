@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import tanStackRouter from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import UnoCSS from "unocss/vite";
@@ -13,5 +15,18 @@ export default defineConfig({
     UnoCSS(),
     react(),
   ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+    },
+  },
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        rewrite: (proxyPath) => proxyPath.replace(/^\/api/, ""),
+      },
+    },
+  },
 });
-

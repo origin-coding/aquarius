@@ -7,7 +7,7 @@ import { createRoot } from "react-dom/client";
 import "antd/dist/reset.css";
 import "virtual:uno.css";
 
-import { routeTree } from "./routeTree.gen";
+import { routeTree } from "@/routeTree.gen";
 
 const queryClient = new QueryClient();
 
@@ -31,4 +31,3 @@ createRoot(document.getElementById("root")!).render(
     </QueryClientProvider>
   </StrictMode>,
 );
-
