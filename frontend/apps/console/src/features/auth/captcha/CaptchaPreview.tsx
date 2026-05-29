@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import type { IssuedCaptcha } from "@/features/auth/login/api";
 
 type CaptchaPreviewProps = {
@@ -15,10 +17,12 @@ export function CaptchaPreview({
   remainingSeconds,
   onRefresh,
 }: CaptchaPreviewProps) {
+  const { t } = useTranslation();
+
   if (!captcha) {
     return (
       <div className="mb-4 flex h-10 items-center rounded border border-dashed border-slate-200 bg-slate-50 px-3 text-sm text-slate-400">
-        验证码加载中
+        {t(($) => $.captcha.loading)}
       </div>
     );
   }
@@ -32,9 +36,13 @@ export function CaptchaPreview({
         type="button"
       >
         {imageSrc ? (
-          <img alt="验证码" className="h-full max-w-full object-contain" src={imageSrc} />
+          <img
+            alt={t(($) => $.captcha.alt)}
+            className="h-full max-w-full object-contain"
+            src={imageSrc}
+          />
         ) : (
-          <span className="text-sm text-slate-400">验证码响应格式不正确</span>
+          <span className="text-sm text-slate-400">{t(($) => $.captcha.invalidResponse)}</span>
         )}
       </button>
     );
@@ -44,15 +52,15 @@ export function CaptchaPreview({
     return (
       <div className="mb-4 flex h-10 items-center rounded border border-slate-200 bg-slate-50 px-3 text-sm text-slate-500">
         {remainingSeconds > 0
-          ? `邮箱验证码已发送，${remainingSeconds} 秒后可重新发送`
-          : "邮箱验证码已发送"}
+          ? t(($) => $.captcha.emailSentWithCountdown, { seconds: remainingSeconds })
+          : t(($) => $.captcha.emailSent)}
       </div>
     );
   }
 
   return (
     <div className="mb-4 flex h-10 items-center justify-center rounded border border-slate-200 bg-slate-50 font-mono text-sm font-semibold text-slate-700">
-      8888
+      {t(($) => $.captcha.developmentCode)}
     </div>
   );
 }

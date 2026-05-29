@@ -1,48 +1,22 @@
 import {
   AppstoreOutlined,
   BellOutlined,
+  GlobalOutlined,
   LogoutOutlined,
   SettingOutlined,
   SmileOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import {ProLayout} from "@ant-design/pro-components";
-import {Link, Outlet, useRouterState} from "@tanstack/react-router";
-import {Button, Dropdown} from "antd";
-import {useState} from "react";
+import { ProLayout } from "@ant-design/pro-components";
+import { Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { Button, Dropdown } from "antd";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import {useLogoutMutation} from "@/features/auth/authMutations";
-import {useAuthStore} from "@/features/auth/authStore";
-
-const appRoute = {
-  path: "/",
-  children: [
-    {
-      path: "/dashboard",
-      name: "工作台",
-      icon: <AppstoreOutlined />,
-    },
-    {
-      path: "/iam",
-      name: "身份与权限",
-      icon: <TeamOutlined />,
-      disabled: true,
-    },
-    {
-      path: "/system",
-      name: "系统设置",
-      icon: <SettingOutlined />,
-      disabled: true,
-    },
-  ],
-};
-
-const headerActions = [
-  {
-    key: "notifications",
-    icon: <BellOutlined />,
-  },
-];
+import { useLogoutMutation } from "@/features/auth/authMutations";
+import { useAuthStore } from "@/features/auth/authStore";
+import type { SupportedLocale } from "@/i18n";
+import { changeLocale, getCurrentLocale } from "@/i18n/locale";
 
 const brandLogo = (
   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#1677ff] font-semibold text-white shadow-sm shadow-blue-200">
@@ -51,17 +25,76 @@ const brandLogo = (
 );
 
 export function AuthenticatedLayout() {
+  const { t } = useTranslation();
+  const { t: tMenu } = useTranslation("menu");
   const [collapsed, setCollapsed] = useState(false);
   const logoutMutation = useLogoutMutation();
   const user = useAuthStore((state) => state.user);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const displayName = user?.name ?? user?.username ?? "Admin";
+  const currentLocale = getCurrentLocale();
+  const appRoute = {
+    path: "/",
+    children: [
+      {
+        path: "/dashboard",
+        name: tMenu(($) => $.dashboard),
+        icon: <AppstoreOutlined />,
+      },
+      {
+        path: "/iam",
+        name: tMenu(($) => $.iam),
+        icon: <TeamOutlined />,
+        disabled: true,
+      },
+      {
+        path: "/system",
+        name: tMenu(($) => $.system),
+        icon: <SettingOutlined />,
+        disabled: true,
+      },
+    ],
+  };
+
+  const handleLocaleChange = (locale: SupportedLocale) => {
+    if (locale !== currentLocale) {
+      void changeLocale(locale);
+    }
+  };
 
   return (
     <ProLayout
-      actionsRender={() =>
-        headerActions.map((action) => <Button icon={action.icon} key={action.key} type="text" />)
-      }
+      actionsRender={() => [
+        <Button
+          aria-label={tMenu(($) => $.notifications)}
+          icon={<BellOutlined />}
+          key="notifications"
+          type="text"
+        />,
+        <Dropdown
+          key="language"
+          menu={{
+            onClick: ({ key }) => handleLocaleChange(key as SupportedLocale),
+            selectedKeys: [currentLocale],
+            items: [
+              {
+                key: "zh-CN",
+                label: t(($) => $.language.zhCN),
+              },
+              {
+                key: "en-US",
+                label: t(($) => $.language.enUS),
+              },
+            ],
+          }}
+          placement="bottomRight"
+          trigger={["click"]}
+        >
+          <Button icon={<GlobalOutlined />} type="text">
+            {currentLocale}
+          </Button>
+        </Dropdown>,
+      ]}
       avatarProps={{
         icon: <SmileOutlined />,
         size: 34,
@@ -69,7 +102,7 @@ export function AuthenticatedLayout() {
         render: (_, defaultDom) => (
           <Dropdown
             menu={{
-              onClick: ({key}) => {
+              onClick: ({ key }) => {
                 if (key === "logout") {
                   logoutMutation.mutate();
                 }
@@ -77,7 +110,7 @@ export function AuthenticatedLayout() {
               items: [
                 {
                   key: "profile",
-                  label: "个人设置",
+                  label: tMenu(($) => $.profile),
                   disabled: true,
                 },
                 {
@@ -86,7 +119,7 @@ export function AuthenticatedLayout() {
                 {
                   key: "logout",
                   icon: <LogoutOutlined />,
-                  label: "退出登录",
+                  label: tMenu(($) => $.logout),
                   disabled: logoutMutation.isPending,
                 },
               ],
@@ -112,7 +145,7 @@ export function AuthenticatedLayout() {
         </Link>
       )}
       layout="mix"
-      locale="zh-CN"
+      locale={currentLocale}
       location={{ pathname }}
       logo={brandLogo}
       menu={{
@@ -133,7 +166,7 @@ export function AuthenticatedLayout() {
       selectedKeys={[pathname]}
       siderWidth={248}
       splitMenus={false}
-      title="Aquarius Console"
+      title={t(($) => $.app.console)}
       token={{
         bgLayout: "#f5f5f5",
         header: {
@@ -152,3 +185,4 @@ export function AuthenticatedLayout() {
     </ProLayout>
   );
 }
+

@@ -1,14 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { message } from "antd";
+import {useMutation, useQueryClient} from "@tanstack/react-query";
+import {useNavigate} from "@tanstack/react-router";
 
-import { api } from "@/features/auth/apiClient";
-import { clearAuthentication } from "@/features/auth/authSession";
-import { authTokenStore, expiresAt, useAuthStore } from "@/features/auth/authStore";
-import {
-  loginWithPassword,
-  type PasswordLoginRequest,
-} from "@/features/auth/login/api";
+import {api} from "@/features/auth/apiClient";
+import {clearAuthentication} from "@/features/auth/authSession";
+import {authTokenStore, expiresAt, useAuthStore} from "@/features/auth/authStore";
+import {loginWithPassword, type PasswordLoginRequest} from "@/features/auth/login/api";
 
 export function usePasswordLoginMutation() {
   const navigate = useNavigate();
@@ -29,10 +25,6 @@ export function usePasswordLoginMutation() {
       await queryClient.invalidateQueries({ queryKey: ["auth"] });
 
       void navigate({ to: "/dashboard" });
-    },
-
-    onError: async (error) => {
-      await message.error(error instanceof Error ? error.message : "auth.login_failed");
     },
   });
 }
@@ -64,3 +56,4 @@ export function useLogoutMutation() {
     },
   });
 }
+
