@@ -3,27 +3,24 @@ package com.origincoding.aquarius.iam.infrastructure.session
 import com.origincoding.aquarius.iam.application.session.LoginSessionRefresher
 import com.origincoding.aquarius.iam.application.session.RefreshLoginSessionCommand
 import com.origincoding.aquarius.iam.application.session.RefreshedLoginSession
-import org.redisson.api.RedissonClient
-import org.redisson.client.codec.StringCodec
 import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
 class RedisLoginSessionRefresher(
-    private val redissonClient: RedissonClient,
+    private val sessionStore: RedisLoginSessionStore,
     private val tokenGenerator: SecureOpaqueTokenGenerator,
     private val tokenHasher: TokenHasher,
     private val properties: IamSessionProperties,
 ) : LoginSessionRefresher {
     override fun refresh(command: RefreshLoginSessionCommand): RefreshedLoginSession? {
         val currentRefreshTokenHash = tokenHasher.hash(command.refreshToken)
-        val sessionId = redissonClient
-            .getBucket<String>(RedisLoginSessionKeys.refreshTokenKey(currentRefreshTokenHash), StringCodec.INSTANCE)
+        val sessionId = sessionStore
+            .refreshTokenBucket(currentRefreshTokenHash)
             .get()
             ?: return null
 
-        val sessionBucket = redissonClient
-            .getBucket<RedisLoginSessionRecord>(RedisLoginSessionKeys.sessionKey(sessionId))
+        val sessionBucket = sessionStore.sessionBucket(sessionId)
         val currentRecord = sessionBucket.get() ?: return null
         val remainingRefreshTtl = remainingRefreshTtl(currentRecord.refreshExpiresAt)
             .takeIf { !it.isZero }
@@ -40,17 +37,17 @@ class RedisLoginSessionRefresher(
 
         // TODO: Make refresh rotation atomic before supporting high-concurrency or replay-sensitive deployments.
         // This delete-then-set sequence can race when the same refresh token is submitted concurrently.
-        redissonClient
-            .getBucket<String>(RedisLoginSessionKeys.accessTokenKey(currentRecord.accessTokenHash), StringCodec.INSTANCE)
+        sessionStore
+            .accessTokenBucket(currentRecord.accessTokenHash)
             .delete()
-        redissonClient
-            .getBucket<String>(RedisLoginSessionKeys.refreshTokenKey(currentRecord.refreshTokenHash), StringCodec.INSTANCE)
+        sessionStore
+            .refreshTokenBucket(currentRecord.refreshTokenHash)
             .delete()
-        redissonClient
-            .getBucket<String>(RedisLoginSessionKeys.accessTokenKey(newAccessTokenHash), StringCodec.INSTANCE)
+        sessionStore
+            .accessTokenBucket(newAccessTokenHash)
             .set(sessionId, properties.accessTokenTtl)
-        redissonClient
-            .getBucket<String>(RedisLoginSessionKeys.refreshTokenKey(newRefreshTokenHash), StringCodec.INSTANCE)
+        sessionStore
+            .refreshTokenBucket(newRefreshTokenHash)
             .set(sessionId, remainingRefreshTtl)
         sessionBucket.set(refreshedRecord, remainingRefreshTtl)
 

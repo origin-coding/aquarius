@@ -13,7 +13,6 @@ class RedisConfiguration(
     @Bean
     fun redissonAutoConfigurationCustomizer(): RedissonAutoConfigurationCustomizer =
         RedissonAutoConfigurationCustomizer { config ->
-            // JsonJackson3Codec writes JSON with type metadata for polymorphic deserialization.
             // Prefer typed codecs in business code when the stored value type is known.
             config.codec = JsonJackson3Codec(objectMapper)
         }

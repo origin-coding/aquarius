@@ -3,8 +3,6 @@ package com.origincoding.aquarius.iam.infrastructure.session
 import com.origincoding.aquarius.iam.application.session.IssuedLoginSession
 import com.origincoding.aquarius.iam.application.session.LoginSessionIssuer
 import com.origincoding.aquarius.iam.application.session.LoginSessionPrincipal
-import org.redisson.api.RedissonClient
-import org.redisson.client.codec.StringCodec
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.util.UUID
@@ -12,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 @Component
 class RedisLoginSessionIssuer(
-    private val redissonClient: RedissonClient,
+    private val sessionStore: RedisLoginSessionStore,
     private val tokenGenerator: SecureOpaqueTokenGenerator,
     private val tokenHasher: TokenHasher,
     private val properties: IamSessionProperties,
@@ -36,17 +34,17 @@ class RedisLoginSessionIssuer(
             refreshExpiresAt = now.plus(properties.refreshTokenTtl),
         )
 
-        redissonClient
-            .getBucket<String>(RedisLoginSessionKeys.accessTokenKey(accessTokenHash), StringCodec.INSTANCE)
+        sessionStore
+            .accessTokenBucket(accessTokenHash)
             .set(sessionId, properties.accessTokenTtl)
-        redissonClient
-            .getBucket<String>(RedisLoginSessionKeys.refreshTokenKey(refreshTokenHash), StringCodec.INSTANCE)
+        sessionStore
+            .refreshTokenBucket(refreshTokenHash)
             .set(sessionId, properties.refreshTokenTtl)
-        redissonClient
-            .getBucket<RedisLoginSessionRecord>(RedisLoginSessionKeys.sessionKey(sessionId))
+        sessionStore
+            .sessionBucket(sessionId)
             .set(record, properties.refreshTokenTtl)
-        redissonClient
-            .getSetCache<String>(RedisLoginSessionKeys.userSessionsKey(principal.user.id), StringCodec.INSTANCE)
+        sessionStore
+            .userSessions(principal.user.id)
             .add(sessionId, properties.refreshTokenTtl.toMillis(), TimeUnit.MILLISECONDS)
 
         return IssuedLoginSession(

@@ -3,23 +3,19 @@ package com.origincoding.aquarius.iam.infrastructure.session
 import com.origincoding.aquarius.iam.application.session.LoginSessionRevoker
 import com.origincoding.aquarius.iam.application.session.RevokeAllLoginSessionsCommand
 import com.origincoding.aquarius.iam.application.session.RevokeLoginSessionCommand
-import org.redisson.api.RedissonClient
-import org.redisson.client.codec.StringCodec
 import org.springframework.stereotype.Component
 
 @Component
 class RedisLoginSessionRevoker(
-    private val redissonClient: RedissonClient,
+    private val sessionStore: RedisLoginSessionStore,
     private val tokenHasher: TokenHasher,
 ) : LoginSessionRevoker {
     override fun revoke(command: RevokeLoginSessionCommand): Boolean {
         val accessTokenHash = tokenHasher.hash(command.accessToken)
-        val accessTokenBucket = redissonClient
-            .getBucket<String>(RedisLoginSessionKeys.accessTokenKey(accessTokenHash), StringCodec.INSTANCE)
+        val accessTokenBucket = sessionStore.accessTokenBucket(accessTokenHash)
         val sessionId = accessTokenBucket.get() ?: return false
 
-        val sessionBucket = redissonClient
-            .getBucket<RedisLoginSessionRecord>(RedisLoginSessionKeys.sessionKey(sessionId))
+        val sessionBucket = sessionStore.sessionBucket(sessionId)
         val record = sessionBucket.get()
 
         accessTokenBucket.delete()
@@ -33,13 +29,11 @@ class RedisLoginSessionRevoker(
     }
 
     override fun revokeAll(command: RevokeAllLoginSessionsCommand) {
-        val userSessions = redissonClient
-            .getSetCache<String>(RedisLoginSessionKeys.userSessionsKey(command.userId), StringCodec.INSTANCE)
+        val userSessions = sessionStore.userSessions(command.userId)
         val sessionIds = userSessions.readAll()
 
         sessionIds.forEach { sessionId ->
-            val sessionBucket = redissonClient
-                .getBucket<RedisLoginSessionRecord>(RedisLoginSessionKeys.sessionKey(sessionId))
+            val sessionBucket = sessionStore.sessionBucket(sessionId)
             val record = sessionBucket.get()
 
             if (record != null) {
@@ -53,17 +47,9 @@ class RedisLoginSessionRevoker(
     }
 
     private fun revokeRecord(record: RedisLoginSessionRecord) {
-        redissonClient
-            .getBucket<String>(RedisLoginSessionKeys.accessTokenKey(record.accessTokenHash), StringCodec.INSTANCE)
-            .delete()
-        redissonClient
-            .getBucket<String>(RedisLoginSessionKeys.refreshTokenKey(record.refreshTokenHash), StringCodec.INSTANCE)
-            .delete()
-        redissonClient
-            .getBucket<RedisLoginSessionRecord>(RedisLoginSessionKeys.sessionKey(record.id))
-            .delete()
-        redissonClient
-            .getSetCache<String>(RedisLoginSessionKeys.userSessionsKey(record.userId), StringCodec.INSTANCE)
-            .remove(record.id)
+        sessionStore.accessTokenBucket(record.accessTokenHash).delete()
+        sessionStore.refreshTokenBucket(record.refreshTokenHash).delete()
+        sessionStore.sessionBucket(record.id).delete()
+        sessionStore.userSessions(record.userId).remove(record.id)
     }
 }
