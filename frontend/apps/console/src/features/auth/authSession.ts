@@ -1,4 +1,4 @@
-import { authTokenStore, useAuthStore } from "@/features/auth/authStore";
+import { authTokenStore, canRestoreAuthSession, useAuthStore } from "@/features/auth/authStore";
 
 let bootstrapPromise: Promise<void> | null = null;
 
@@ -8,10 +8,11 @@ export function bootstrapAuthState(): Promise<void> {
 }
 
 async function doBootstrapAuthState(): Promise<void> {
-  const tokenState = await authTokenStore.getTokenState?.();
-  const user = useAuthStore.getState().user;
+  const state = useAuthStore.getState();
+  const tokenState = (await authTokenStore.getTokenState?.()) ?? state.tokenState;
+  const user = state.user;
 
-  if ((tokenState?.accessToken || tokenState?.refreshToken) && user) {
+  if (user && canRestoreAuthSession(tokenState)) {
     useAuthStore.getState().setAuthenticated(user);
     return;
   }

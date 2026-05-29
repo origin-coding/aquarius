@@ -1,17 +1,14 @@
+import type { AuthTokenState, AuthTokenStateInput, AuthTokenStore } from "@aquarius/api-client";
 import { useStore } from "zustand";
 import { persist } from "zustand/middleware";
 import { createStore, type StoreApi } from "zustand/vanilla";
-import type {
-  AuthTokenState,
-  AuthTokenStateInput,
-  AuthTokenStore,
-} from "@aquarius/api-client";
 
 import type { AuthStatus, CurrentUser } from "@/features/auth/authTypes";
 
 const authStorageKey = "aquarius.console.auth";
 const legacyUserStorageKey = "aquarius.console.auth.user";
 const legacyTokenStorageKey = "aquarius.console.auth.tokens";
+const tokenExpirySkewMs = 10_000;
 
 type AuthState = {
   status: AuthStatus;
@@ -101,7 +98,7 @@ export const authStore = createStore<AuthState>()(
 
         return {
           ...currentState,
-          status: user && hasTokens(tokenState) ? "authenticated" : currentState.status,
+          status: user && canRestoreAuthSession(tokenState) ? "authenticated" : currentState.status,
           user,
           tokenState,
         };
@@ -160,6 +157,18 @@ export function expiresAt(expiresInSeconds: number): number {
   return Date.now() + expiresInSeconds * 1000;
 }
 
+export function canRestoreAuthSession(state: AuthTokenState, now = Date.now()): boolean {
+  return hasUsableAccessToken(state, now) || hasUsableRefreshToken(state, now);
+}
+
+export function hasUsableAccessToken(state: AuthTokenState, now = Date.now()): boolean {
+  return hasUsableToken(state.accessToken, state.accessTokenExpiresAt, now);
+}
+
+export function hasUsableRefreshToken(state: AuthTokenState, now = Date.now()): boolean {
+  return hasUsableToken(state.refreshToken, state.refreshTokenExpiresAt, now);
+}
+
 function emptyTokenState(): AuthTokenState {
   return {
     accessToken: null,
@@ -178,8 +187,8 @@ function normalizeTokenState(state: AuthTokenStateInput = {}): AuthTokenState {
   };
 }
 
-function hasTokens(state: AuthTokenState): boolean {
-  return Boolean(state.accessToken || state.refreshToken);
+function hasUsableToken(token: string | null, expiresAtMs: number | null, now: number): boolean {
+  return Boolean(token && expiresAtMs && expiresAtMs > now + tokenExpirySkewMs);
 }
 
 function readLegacyUser(): CurrentUser | null {
@@ -254,4 +263,3 @@ function removeLocalStorageItem(key: string): void {
 
   localStorage.removeItem(key);
 }
-
