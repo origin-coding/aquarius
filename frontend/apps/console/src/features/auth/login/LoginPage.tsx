@@ -16,7 +16,7 @@ import { usePasswordLoginCaptcha } from "@/features/auth/captcha/usePasswordLogi
 import type { PasswordLoginRequest } from "@/features/auth/login/api";
 import type { SupportedLocale } from "@/i18n";
 import { changeLocale, getCurrentLocale } from "@/i18n/locale";
-import { translateApiError } from "@/shared/api/apiErrorMessages";
+import { applyApiFormErrors, clearApiFormErrors } from "@/shared/api/apiFormErrors";
 
 const { Text, Title } = Typography;
 
@@ -146,6 +146,7 @@ function PasswordLoginForm() {
   const handleSubmit = async (values: PasswordLoginRequest) => {
     setErrorCode(null);
     setCaptchaErrorCode(null);
+    clearApiFormErrors(form, ["loginName", "password", "captchaCode"]);
 
     try {
       await loginMutation.mutateAsync({
@@ -154,7 +155,12 @@ function PasswordLoginForm() {
         captchaCode: values.captchaCode.trim(),
       });
     } catch (error) {
-      setErrorCode(translateApiError(error, "auth.login_failed"));
+      setErrorCode(
+        applyApiFormErrors(error, {
+          fallbackCode: "auth.login_failed",
+          form,
+        }).message,
+      );
       void refreshPasswordLoginCaptcha();
     }
   };
