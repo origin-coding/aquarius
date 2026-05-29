@@ -1,5 +1,6 @@
-import createClient, { type Middleware } from "openapi-fetch";
 import type { paths } from "@aquarius/api-types/generated/schema";
+import createClient, { type Middleware } from "openapi-fetch";
+
 import {
   createMemoryAuthTokenStore,
   createSingleFlightRefresh,
@@ -54,6 +55,7 @@ export function createAquariusApiClient(options: CreateApiClientOptions = {}): A
 
   const tokenStore = options.tokenStore ?? createMemoryAuthTokenStore();
   const excludedPaths = new Set(options.refreshExcludedPaths ?? DEFAULT_REFRESH_EXCLUDED_PATHS);
+  const basePath = baseUrlPathname(baseUrl);
   const refreshAccessToken = createSingleFlightRefresh(
     options.refreshAccessToken ?? createDefaultRefreshAccessToken(baseUrl, fetchImpl, tokenStore),
   );
@@ -62,6 +64,7 @@ export function createAquariusApiClient(options: CreateApiClientOptions = {}): A
     tokenStore,
     refreshAccessToken,
     excludedPaths,
+    basePath,
     onAuthExpired: options.onAuthExpired,
   });
 
@@ -89,8 +92,12 @@ export function createAquariusApiClient(options: CreateApiClientOptions = {}): A
 
 export const api = createAquariusApiClient();
 
-function shouldAttemptRefresh(request: Request, excludedPaths: Set<string>): boolean {
-  const path = new URL(request.url).pathname;
+function shouldAttemptRefresh(
+  request: Request,
+  excludedPaths: Set<string>,
+  basePath: string,
+): boolean {
+  const path = apiPathname(request, basePath);
   return !excludedPaths.has(path);
 }
 
@@ -99,6 +106,7 @@ type AuthFetchOptions = {
   tokenStore: AuthTokenStore;
   refreshAccessToken: RefreshAccessToken;
   excludedPaths: Set<string>;
+  basePath: string;
   onAuthExpired?: CreateApiClientOptions["onAuthExpired"];
 };
 
@@ -107,7 +115,10 @@ function createAuthFetch(options: AuthFetchOptions): typeof fetch {
     const request = new Request(input, init);
     const response = await options.fetchImpl(request.clone());
 
-    if (response.status !== 401 || !shouldAttemptRefresh(request, options.excludedPaths)) {
+    if (
+      response.status !== 401 ||
+      !shouldAttemptRefresh(request, options.excludedPaths, options.basePath)
+    ) {
       return response;
     }
 
@@ -162,7 +173,7 @@ function createDefaultRefreshAccessToken(
     }
 
     const response = await fetchImpl(
-      new Request(new URL(REFRESH_TOKEN_PATH, normalizedBaseUrl(baseUrl)), {
+      new Request(apiUrl(baseUrl, REFRESH_TOKEN_PATH), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -220,6 +231,35 @@ function expiresAt(expiresInSeconds: number | undefined): number | undefined {
 
 function normalizedBaseUrl(baseUrl: string): string {
   return baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+}
+
+function apiUrl(baseUrl: string, path: string): string {
+  const relativePath = path.replace(/^\//, "");
+
+  try {
+    return new URL(relativePath, normalizedBaseUrl(baseUrl)).toString();
+  } catch {
+    return `${baseUrl.replace(/\/$/, "")}/${relativePath}`;
+  }
+}
+
+function baseUrlPathname(baseUrl: string): string {
+  try {
+    const pathname = new URL(baseUrl, "http://aquarius.local").pathname.replace(/\/$/, "");
+    return pathname === "/" ? "" : pathname;
+  } catch {
+    return "";
+  }
+}
+
+function apiPathname(request: Request, basePath: string): string {
+  const pathname = new URL(request.url).pathname;
+
+  if (basePath && pathname.startsWith(`${basePath}/`)) {
+    return pathname.slice(basePath.length);
+  }
+
+  return pathname;
 }
 
 async function expireAuthentication(

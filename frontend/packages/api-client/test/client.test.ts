@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import { createMemoryAuthTokenStore, createAquariusApiClient } from "../src";
 
 describe("Aquarius API client auth", () => {
@@ -114,6 +115,77 @@ describe("Aquarius API client auth", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(onAuthExpired).not.toHaveBeenCalled();
+  });
+
+  it("does not recursively refresh excluded endpoints under a base path", async () => {
+    const store = createMemoryAuthTokenStore({
+      accessToken: "access-1",
+      refreshToken: "refresh-1",
+    });
+    const onAuthExpired = vi.fn();
+    const fetchMock = vi.fn(async () =>
+      jsonResponse({ code: "iam.auth.invalid_refresh_token" }, 401),
+    );
+
+    const client = createAquariusApiClient({
+      baseUrl: "http://api.test/api",
+      fetch: fetchMock,
+      tokenStore: store,
+      onAuthExpired,
+    });
+
+    await client.POST("/iam/auth/sessions/refresh-token", {
+      body: { refreshToken: "refresh-1" },
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(onAuthExpired).not.toHaveBeenCalled();
+  });
+
+  it("refreshes and retries requests under a base path", async () => {
+    const store = createMemoryAuthTokenStore({
+      accessToken: "access-1",
+      refreshToken: "refresh-1",
+    });
+    const fetchMock = vi.fn(async (request: RequestInfo | URL) => {
+      const url = requestUrl(request);
+      const authorization = (request as Request).headers.get("Authorization");
+
+      if (url.pathname === "/api/iam/auth/sessions/refresh-token") {
+        expect(await (request as Request).json()).toEqual({ refreshToken: "refresh-1" });
+        return jsonResponse({
+          code: "ok",
+          data: {
+            accessToken: "access-2",
+            refreshToken: "refresh-2",
+            expiresIn: 900,
+            refreshExpiresIn: 3600,
+          },
+        });
+      }
+
+      expect(url.pathname).toBe("/api/iam/captchas/password-login");
+
+      if (authorization === "Bearer access-1") {
+        return jsonResponse({ code: "iam.auth.unauthenticated" }, 401);
+      }
+
+      expect(authorization).toBe("Bearer access-2");
+      return jsonResponse({ code: "ok" });
+    });
+
+    const client = createAquariusApiClient({
+      baseUrl: "http://api.test/api",
+      fetch: fetchMock,
+      tokenStore: store,
+    });
+
+    const result = await client.GET("/iam/captchas/password-login");
+
+    expect(result.response.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(await store.getAccessToken()).toBe("access-2");
+    expect(await store.getRefreshToken()).toBe("refresh-2");
   });
 
   it("clears tokens and calls onAuthExpired when refresh fails", async () => {

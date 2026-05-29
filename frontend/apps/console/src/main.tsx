@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import "antd/dist/reset.css";
 import "virtual:uno.css";
 
+import { configureAuthSession } from "@/features/auth/authSession";
 import "@/i18n";
 import { getAntdLocale } from "@/i18n/antdLocale";
 import { routeTree } from "@/routeTree.gen";
@@ -17,6 +18,14 @@ const queryClient = new QueryClient();
 const router = createRouter({
   routeTree,
   defaultPreload: "intent",
+});
+
+configureAuthSession(async () => {
+  queryClient.clear();
+
+  if (router.state.location.pathname !== "/login") {
+    await router.navigate({ replace: true, to: "/login" });
+  }
 });
 
 declare module "@tanstack/react-router" {

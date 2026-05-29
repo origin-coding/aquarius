@@ -1,6 +1,6 @@
 import { createAquariusApiClient, getApiErrorCode } from "@aquarius/api-client";
 
-import { clearAuthentication } from "@/features/auth/authSession";
+import { expireAuthentication } from "@/features/auth/authSession";
 import { authTokenStore } from "@/features/auth/authStore";
 
 type ApiDataResponse<T> = {
@@ -11,7 +11,7 @@ export const api = createAquariusApiClient({
   baseUrl: import.meta.env.VITE_API_BASE_URL ?? "/api",
   tokenStore: authTokenStore,
   onAuthExpired: async () => {
-    await clearAuthentication();
+    await expireAuthentication();
   },
 });
 

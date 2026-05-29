@@ -1,6 +1,13 @@
 import { authTokenStore, canRestoreAuthSession, useAuthStore } from "@/features/auth/authStore";
 
+type AuthExpiredHandler = () => void | Promise<void>;
+
 let bootstrapPromise: Promise<void> | null = null;
+let authExpiredHandler: AuthExpiredHandler | null = null;
+
+export function configureAuthSession(handler: AuthExpiredHandler): void {
+  authExpiredHandler = handler;
+}
 
 export function bootstrapAuthState(): Promise<void> {
   bootstrapPromise ??= doBootstrapAuthState();
@@ -22,6 +29,12 @@ async function doBootstrapAuthState(): Promise<void> {
 }
 
 export async function clearAuthentication(): Promise<void> {
+  bootstrapPromise = null;
   await authTokenStore.clearTokens();
   useAuthStore.getState().clear();
+}
+
+export async function expireAuthentication(): Promise<void> {
+  await clearAuthentication();
+  await authExpiredHandler?.();
 }
