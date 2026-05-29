@@ -2,6 +2,7 @@ package com.origincoding.aquarius.iam.infrastructure.captcha
 
 import com.origincoding.aquarius.iam.application.auth.CaptchaDelivery
 import com.origincoding.aquarius.iam.application.auth.CaptchaPurpose
+import com.origincoding.aquarius.iam.application.auth.DefaultLoginNameNormalizer
 import com.origincoding.aquarius.iam.application.auth.IssueCaptchaCommand
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -34,6 +35,7 @@ class RedisPasswordLoginCaptchaIssuerTests {
     private val issuer = RedisPasswordLoginCaptchaIssuer(
         captchaStore = captchaStore,
         imageGenerator = imageGenerator,
+        loginNameNormalizer = DefaultLoginNameNormalizer(),
         properties = properties,
     )
 
@@ -41,7 +43,12 @@ class RedisPasswordLoginCaptchaIssuerTests {
     fun `issue stores redis challenge record and returns image captcha contract`() {
         `when`(captchaStore.challengeBucket(anyString())).thenReturn(challengeBucket)
 
-        val issuedCaptcha = issuer.issue(IssueCaptchaCommand(CaptchaPurpose.PASSWORD_LOGIN))
+        val issuedCaptcha = issuer.issue(
+            IssueCaptchaCommand(
+                purpose = CaptchaPurpose.PASSWORD_LOGIN,
+                target = "Alice",
+            )
+        )
 
         val recordCaptor = ArgumentCaptor.forClass(RedisPasswordLoginCaptchaRecord::class.java)
         verify(challengeBucket).set(recordCaptor.capture(), eq(properties.ttl))
@@ -50,6 +57,7 @@ class RedisPasswordLoginCaptchaIssuerTests {
         assertEquals(issuedCaptcha.captchaChallengeId, record.challengeId)
         assertEquals(CaptchaDelivery.IMAGE, record.delivery)
         assertEquals(0, record.attemptCount)
+        assertTrue(record.targetHash!!.isNotBlank())
         assertTrue(record.expiresAt.isAfter(record.createdAt))
         assertFalse(record.codeHash.contains("1234"))
         assertTrue(PasswordLoginCaptchaCodeHasher().matches(record.challengeId, "1234", record.codeHash))

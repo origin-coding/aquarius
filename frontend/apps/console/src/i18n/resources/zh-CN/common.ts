@@ -12,6 +12,7 @@ export const common = {
     emailSentWithCountdown: "邮箱验证码已发送，{{seconds}} 秒后可重新发送",
     invalidResponse: "验证码响应格式不正确",
     loading: "验证码加载中",
+    waitingForLoginName: "输入登录名后加载验证码",
   },
   language: {
     enUS: "English",

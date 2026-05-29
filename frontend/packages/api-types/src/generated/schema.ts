@@ -203,7 +203,9 @@ export interface operations {
     };
     issuePasswordLoginCaptcha: {
         parameters: {
-            query?: never;
+            query: {
+                loginName: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;

@@ -2,7 +2,13 @@ import { createAquariusApiClient } from "../src";
 
 const api = createAquariusApiClient({ baseUrl: "http://api.test" });
 
-api.GET("/iam/captchas/password-login");
+api.GET("/iam/captchas/password-login", {
+  params: {
+    query: {
+      loginName: "admin",
+    },
+  },
+});
 
 api.POST("/iam/auth/sessions/password", {
   body: {

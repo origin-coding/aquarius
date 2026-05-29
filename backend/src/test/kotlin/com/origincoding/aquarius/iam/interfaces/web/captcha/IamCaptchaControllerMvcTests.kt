@@ -43,7 +43,14 @@ class IamCaptchaControllerMvcTests @Autowired constructor(
 
     @Test
     fun `issues password login captcha through HTTP contract`() {
-        `when`(captchaIssuer.issue(IssueCaptchaCommand(CaptchaPurpose.PASSWORD_LOGIN)))
+        `when`(
+            captchaIssuer.issue(
+                IssueCaptchaCommand(
+                    purpose = CaptchaPurpose.PASSWORD_LOGIN,
+                    target = "alice",
+                )
+            )
+        )
             .thenReturn(
                 IssuedCaptcha(
                     captchaChallengeId = "challenge-id",
@@ -54,7 +61,7 @@ class IamCaptchaControllerMvcTests @Autowired constructor(
                 )
             )
 
-        mockMvc.perform(get("/iam/captchas/password-login"))
+        mockMvc.perform(get("/iam/captchas/password-login").param("loginName", "alice"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.code").value(GlobalResultCode.OK.code))
             .andExpect(jsonPath("$.data.captchaChallengeId").value("challenge-id"))
@@ -63,6 +70,17 @@ class IamCaptchaControllerMvcTests @Autowired constructor(
             .andExpect(jsonPath("$.data.imageBase64").value("base64-image"))
             .andExpect(jsonPath("$.data.imageContentType").value("image/png"))
 
-        verify(captchaIssuer).issue(IssueCaptchaCommand(CaptchaPurpose.PASSWORD_LOGIN))
+        verify(captchaIssuer).issue(
+            IssueCaptchaCommand(
+                purpose = CaptchaPurpose.PASSWORD_LOGIN,
+                target = "alice",
+            )
+        )
+    }
+
+    @Test
+    fun `rejects password login captcha issue without login name`() {
+        mockMvc.perform(get("/iam/captchas/password-login"))
+            .andExpect(status().isBadRequest)
     }
 }

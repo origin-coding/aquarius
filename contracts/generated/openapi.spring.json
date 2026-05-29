@@ -47,6 +47,16 @@
           "iam-captcha-controller"
         ],
         "operationId": "issuePasswordLoginCaptcha",
+        "parameters": [
+          {
+            "name": "loginName",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",

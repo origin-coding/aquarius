@@ -7,6 +7,7 @@ type CaptchaPreviewProps = {
   imageSrc: string | null;
   loading: boolean;
   remainingSeconds: number;
+  requiresLoginName: boolean;
   onRefresh: () => void;
 };
 
@@ -15,6 +16,7 @@ export function CaptchaPreview({
   imageSrc,
   loading,
   remainingSeconds,
+  requiresLoginName,
   onRefresh,
 }: CaptchaPreviewProps) {
   const { t } = useTranslation();
@@ -22,7 +24,9 @@ export function CaptchaPreview({
   if (!captcha) {
     return (
       <div className="mb-4 flex h-10 items-center rounded border border-dashed border-slate-200 bg-slate-50 px-3 text-sm text-slate-400">
-        {t(($) => $.captcha.loading)}
+        {requiresLoginName && !loading
+          ? t(($) => $.captcha.waitingForLoginName)
+          : t(($) => $.captcha.loading)}
       </div>
     );
   }

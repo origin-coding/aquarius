@@ -12,6 +12,7 @@ export const common = {
     emailSentWithCountdown: "Email verification code sent. Try again in {{seconds}}s",
     invalidResponse: "Invalid captcha response",
     loading: "Loading captcha",
+    waitingForLoginName: "Enter login name to load captcha",
   },
   language: {
     enUS: "English",

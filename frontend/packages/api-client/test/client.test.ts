@@ -17,7 +17,7 @@ describe("Aquarius API client auth", () => {
       tokenStore: store,
     });
 
-    await client.GET("/iam/captchas/password-login");
+    await client.GET("/iam/captchas/password-login", captchaRequestOptions());
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
@@ -35,7 +35,7 @@ describe("Aquarius API client auth", () => {
       tokenStore: createMemoryAuthTokenStore(),
     });
 
-    await client.GET("/iam/captchas/password-login");
+    await client.GET("/iam/captchas/password-login", captchaRequestOptions());
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
@@ -80,8 +80,8 @@ describe("Aquarius API client auth", () => {
     });
 
     const [first, second] = await Promise.all([
-      client.GET("/iam/captchas/password-login"),
-      client.GET("/iam/captchas/password-login"),
+      client.GET("/iam/captchas/password-login", captchaRequestOptions()),
+      client.GET("/iam/captchas/password-login", captchaRequestOptions()),
     ]);
 
     expect(first.response.status).toBe(200);
@@ -180,7 +180,7 @@ describe("Aquarius API client auth", () => {
       tokenStore: store,
     });
 
-    const result = await client.GET("/iam/captchas/password-login");
+    const result = await client.GET("/iam/captchas/password-login", captchaRequestOptions());
 
     expect(result.response.status).toBe(200);
     expect(fetchMock).toHaveBeenCalledTimes(3);
@@ -211,7 +211,7 @@ describe("Aquarius API client auth", () => {
       onAuthExpired,
     });
 
-    const result = await client.GET("/iam/captchas/password-login");
+    const result = await client.GET("/iam/captchas/password-login", captchaRequestOptions());
 
     expect(result.response.status).toBe(401);
     expect(await store.getAccessToken()).toBeNull();
@@ -229,6 +229,16 @@ function jsonResponse(body: unknown, status = 200): Response {
       "Content-Type": "application/json",
     },
   });
+}
+
+function captchaRequestOptions() {
+  return {
+    params: {
+      query: {
+        loginName: "admin",
+      },
+    },
+  } as const;
 }
 
 function requestUrl(request: RequestInfo | URL): URL {

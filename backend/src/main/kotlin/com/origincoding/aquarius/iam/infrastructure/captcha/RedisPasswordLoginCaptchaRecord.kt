@@ -6,6 +6,7 @@ import java.time.Instant
 data class RedisPasswordLoginCaptchaRecord(
     val challengeId: String,
     val codeHash: String,
+    val targetHash: String? = null,
     val delivery: CaptchaDelivery,
     val expiresAt: Instant,
     val createdAt: Instant,

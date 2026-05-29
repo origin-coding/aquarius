@@ -112,6 +112,7 @@ function PasswordLoginForm() {
   const { t } = useTranslation();
   const { t: tValidation } = useTranslation("validation");
   const [form] = Form.useForm<PasswordLoginRequest>();
+  const watchedLoginName = Form.useWatch("loginName", form);
   const loginMutation = usePasswordLoginMutation();
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const {
@@ -122,9 +123,10 @@ function PasswordLoginForm() {
     imageSrc,
     loading: captchaLoading,
     remainingSeconds,
+    requiresLoginName,
     refreshCaptcha: refreshPasswordLoginCaptcha,
     setErrorCode: setCaptchaErrorCode,
-  } = usePasswordLoginCaptcha();
+  } = usePasswordLoginCaptcha(watchedLoginName);
   const displayedErrorMessage = errorCode ?? captchaErrorCode;
 
   const refreshCaptcha = useCallback(async () => {
@@ -133,12 +135,8 @@ function PasswordLoginForm() {
   }, [refreshPasswordLoginCaptcha]);
 
   useEffect(() => {
-    if (!captchaChallengeId) {
-      return;
-    }
-
     form.setFieldsValue({
-      captchaChallengeId,
+      captchaChallengeId: captchaChallengeId ?? "",
       captchaCode: "",
     });
   }, [form, captchaChallengeId]);
@@ -221,7 +219,7 @@ function PasswordLoginForm() {
           <Button
             className="!h-10"
             icon={<ReloadOutlined />}
-            disabled={delivery === "EMAIL" && remainingSeconds > 0}
+            disabled={requiresLoginName || (delivery === "EMAIL" && remainingSeconds > 0)}
             loading={captchaLoading}
             onClick={refreshCaptcha}
           >
@@ -237,6 +235,7 @@ function PasswordLoginForm() {
         imageSrc={imageSrc}
         loading={captchaLoading}
         remainingSeconds={remainingSeconds}
+        requiresLoginName={requiresLoginName}
         onRefresh={refreshCaptcha}
       />
 

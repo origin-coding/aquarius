@@ -6,8 +6,14 @@ import type { LoginSuccessResponse } from "@/features/auth/authTypes";
 export type PasswordLoginRequest = components["schemas"]["PasswordLoginRequest"];
 export type IssuedCaptcha = components["schemas"]["IssuedCaptcha"];
 
-export async function issuePasswordLoginCaptcha(): Promise<IssuedCaptcha> {
-  const { data, error } = await api.GET("/iam/captchas/password-login");
+export async function issuePasswordLoginCaptcha(loginName: string): Promise<IssuedCaptcha> {
+  const { data, error } = await api.GET("/iam/captchas/password-login", {
+    params: {
+      query: {
+        loginName,
+      },
+    },
+  });
 
   if (error) {
     throw error;
