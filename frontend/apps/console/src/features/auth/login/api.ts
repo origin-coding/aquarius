@@ -1,7 +1,7 @@
-import type {components} from "@aquarius/api-types/generated/schema";
+import type { components } from "@aquarius/api-types/generated/schema";
 
-import {api, apiErrorCode, readApiData} from "@/features/auth/apiClient";
-import type {LoginSuccessResponse} from "@/features/auth/authTypes";
+import { api, readApiData } from "@/features/auth/apiClient";
+import type { LoginSuccessResponse } from "@/features/auth/authTypes";
 
 export type PasswordLoginRequest = components["schemas"]["PasswordLoginRequest"];
 export type IssuedCaptcha = components["schemas"]["IssuedCaptcha"];
@@ -10,7 +10,7 @@ export async function issuePasswordLoginCaptcha(): Promise<IssuedCaptcha> {
   const { data, error } = await api.GET("/iam/captchas/password-login");
 
   if (error) {
-    throw new Error(apiErrorCode(error, "captcha.issue_failed"));
+    throw error;
   }
 
   const captcha = readApiData(data, "captcha.issue_invalid_response");
@@ -33,7 +33,7 @@ export async function loginWithPassword(
   });
 
   if (error) {
-    throw new Error(apiErrorCode(error, "auth.login_failed"));
+    throw error;
   }
 
   return readApiData(data, "auth.login_invalid_response");

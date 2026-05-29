@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { createMemoryAuthTokenStore, createSingleFlightRefresh } from "../src";
+
+import { createMemoryAuthTokenStore, createSingleFlightRefresh, getApiErrorBody } from "../src";
 
 describe("memory auth token store", () => {
   it("gets, sets, and clears tokens", async () => {
@@ -61,5 +62,25 @@ describe("single-flight refresh", () => {
     expect(second).toEqual(first);
     expect(third).toEqual(first);
     expect(refresh).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("API error body helpers", () => {
+  it("reads structured API error bodies", () => {
+    expect(
+      getApiErrorBody({
+        code: "iam.auth.invalid_credentials",
+        arguments: [{ name: "username", value: "admin" }],
+      }),
+    ).toEqual({
+      code: "iam.auth.invalid_credentials",
+      arguments: [{ name: "username", value: "admin" }],
+    });
+  });
+
+  it("treats legacy Error messages as error codes", () => {
+    expect(getApiErrorBody(new Error("auth.login_failed"))).toEqual({
+      code: "auth.login_failed",
+    });
   });
 });

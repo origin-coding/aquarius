@@ -19,3 +19,17 @@ export function isApiErrorBody(value: unknown): value is ApiErrorBody {
 export function getApiErrorCode(value: unknown): string | null {
   return isApiErrorBody(value) && typeof value.code === "string" ? value.code : null;
 }
+
+export function getApiErrorBody(value: unknown): ApiErrorBody | null {
+  if (isApiErrorBody(value)) {
+    return value;
+  }
+
+  if (value instanceof Error) {
+    return {
+      code: value.message,
+    };
+  }
+
+  return null;
+}

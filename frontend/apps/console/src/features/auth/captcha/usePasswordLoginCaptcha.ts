@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import {
-  issuePasswordLoginCaptcha,
-  type IssuedCaptcha,
-} from "@/features/auth/login/api";
 import { useCountdown } from "@/features/auth/captcha/useCountdown";
+import { issuePasswordLoginCaptcha, type IssuedCaptcha } from "@/features/auth/login/api";
+import { translateApiError } from "@/shared/api/apiErrorMessages";
 
 export function usePasswordLoginCaptcha() {
   const [captcha, setCaptcha] = useState<IssuedCaptcha | null>(null);
@@ -36,7 +34,7 @@ export function usePasswordLoginCaptcha() {
     } catch (error) {
       setCaptcha(null);
       setCaptchaExpiresAt(null);
-      setErrorCode(error instanceof Error ? error.message : "captcha.issue_failed");
+      setErrorCode(translateApiError(error, "captcha.issue_failed"));
     } finally {
       setLoading(false);
     }

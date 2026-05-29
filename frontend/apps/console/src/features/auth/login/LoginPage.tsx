@@ -16,6 +16,7 @@ import { usePasswordLoginCaptcha } from "@/features/auth/captcha/usePasswordLogi
 import type { PasswordLoginRequest } from "@/features/auth/login/api";
 import type { SupportedLocale } from "@/i18n";
 import { changeLocale, getCurrentLocale } from "@/i18n/locale";
+import { translateApiError } from "@/shared/api/apiErrorMessages";
 
 const { Text, Title } = Typography;
 
@@ -109,7 +110,6 @@ function LoginLocaleSwitcher() {
 
 function PasswordLoginForm() {
   const { t } = useTranslation();
-  const { t: tErrors } = useTranslation("errors");
   const { t: tValidation } = useTranslation("validation");
   const [form] = Form.useForm<PasswordLoginRequest>();
   const loginMutation = usePasswordLoginMutation();
@@ -125,29 +125,7 @@ function PasswordLoginForm() {
     refreshCaptcha: refreshPasswordLoginCaptcha,
     setErrorCode: setCaptchaErrorCode,
   } = usePasswordLoginCaptcha();
-  const displayedErrorCode = errorCode ?? captchaErrorCode;
-  const displayedErrorMessage = displayedErrorCode
-    ? (() => {
-        switch (displayedErrorCode) {
-          case "iam.auth.invalid_captcha":
-            return tErrors(($) => $.iam.auth.invalid_captcha);
-          case "iam.auth.invalid_credentials":
-            return tErrors(($) => $.iam.auth.invalid_credentials);
-          case "iam.auth.user_disabled":
-            return tErrors(($) => $.iam.auth.user_disabled);
-          case "captcha.issue_failed":
-            return tErrors(($) => $.captcha.issue_failed);
-          case "captcha.issue_invalid_response":
-            return tErrors(($) => $.captcha.issue_invalid_response);
-          case "auth.login_invalid_response":
-            return tErrors(($) => $.auth.login_invalid_response);
-          case "auth.login_failed":
-            return tErrors(($) => $.auth.login_failed);
-          default:
-            return displayedErrorCode;
-        }
-      })()
-    : null;
+  const displayedErrorMessage = errorCode ?? captchaErrorCode;
 
   const refreshCaptcha = useCallback(async () => {
     setErrorCode(null);
@@ -176,7 +154,7 @@ function PasswordLoginForm() {
         captchaCode: values.captchaCode.trim(),
       });
     } catch (error) {
-      setErrorCode(error instanceof Error ? error.message : "auth.login_failed");
+      setErrorCode(translateApiError(error, "auth.login_failed"));
       void refreshPasswordLoginCaptcha();
     }
   };

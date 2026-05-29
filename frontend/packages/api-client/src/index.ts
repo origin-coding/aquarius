@@ -10,5 +10,5 @@ export type {
   MaybePromise,
   RefreshAccessToken,
 } from "./auth";
-export { getApiErrorCode, isApiErrorBody } from "./errors";
+export { getApiErrorBody, getApiErrorCode, isApiErrorBody } from "./errors";
 export type { ApiErrorBody, IssueBody, MessageArgument } from "./errors";
