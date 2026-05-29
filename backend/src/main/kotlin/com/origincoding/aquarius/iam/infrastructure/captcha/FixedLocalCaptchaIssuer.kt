@@ -6,11 +6,17 @@ import com.origincoding.aquarius.iam.application.auth.CaptchaPurpose
 import com.origincoding.aquarius.iam.application.auth.IssueCaptchaCommand
 import com.origincoding.aquarius.iam.application.auth.IssuedCaptcha
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
 @Component
 @Profile("local")
+@ConditionalOnProperty(
+    prefix = "aquarius.iam.captcha.password-login",
+    name = ["store"],
+    havingValue = "fixed-local",
+)
 class FixedLocalCaptchaIssuer : CaptchaIssuer {
     private val logger = KotlinLogging.logger { }
 

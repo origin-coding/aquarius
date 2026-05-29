@@ -5,6 +5,7 @@ import java.time.Duration
 
 @ConfigurationProperties(prefix = "aquarius.iam.captcha.password-login")
 class PasswordLoginCaptchaProperties(
+    val store: PasswordLoginCaptchaStoreType = PasswordLoginCaptchaStoreType.REDIS,
     val ttl: Duration = Duration.ofMinutes(5),
     val maxAttempts: Int = 5,
     val codeLength: Int = 4,
@@ -14,4 +15,9 @@ class PasswordLoginCaptchaProperties(
         require(maxAttempts > 0) { "Password login captcha max attempts must be positive" }
         require(codeLength > 0) { "Password login captcha code length must be positive" }
     }
+}
+
+enum class PasswordLoginCaptchaStoreType {
+    REDIS,
+    FIXED_LOCAL,
 }

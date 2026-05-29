@@ -16,12 +16,26 @@ spring:
       password: ${REDIS_PASSWORD}
       database: ${REDIS_DB:15}
 
+  mail:
+    host: localhost
+    port: 1025
+    properties:
+      "[mail.smtp.connectiontimeout]": 5000
+      "[mail.smtp.timeout]": 3000
+      "[mail.smtp.writetimeout]": 5000
+
 springdoc:
   api-docs:
     enabled: true
 
 aquarius:
   iam:
+    captcha:
+      password-login:
+        store: fixed-local
+        mail:
+          from: no-reply@aquarius.local
+          subject: Aquarius login verification code
     bootstrap:
       admin:
         enabled: true

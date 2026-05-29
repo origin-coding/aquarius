@@ -4,11 +4,17 @@ import com.origincoding.aquarius.iam.application.auth.CaptchaPurpose
 import com.origincoding.aquarius.iam.application.auth.CaptchaVerifier
 import com.origincoding.aquarius.iam.application.auth.VerifyCaptchaCommand
 import com.origincoding.aquarius.iam.infrastructure.security.authentication.exception.InvalidCaptchaException
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 
 @Component
 @Profile("local")
+@ConditionalOnProperty(
+    prefix = "aquarius.iam.captcha.password-login",
+    name = ["store"],
+    havingValue = "fixed-local",
+)
 class FixedLocalCaptchaVerifier : CaptchaVerifier {
     override fun verify(command: VerifyCaptchaCommand) {
         if (command.purpose != CaptchaPurpose.PASSWORD_LOGIN) {

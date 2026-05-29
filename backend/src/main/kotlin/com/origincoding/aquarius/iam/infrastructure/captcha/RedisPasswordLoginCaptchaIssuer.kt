@@ -5,13 +5,18 @@ import com.origincoding.aquarius.iam.application.auth.CaptchaIssuer
 import com.origincoding.aquarius.iam.application.auth.CaptchaPurpose
 import com.origincoding.aquarius.iam.application.auth.IssueCaptchaCommand
 import com.origincoding.aquarius.iam.application.auth.IssuedCaptcha
-import org.springframework.context.annotation.Profile
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.util.UUID
 
 @Component
-@Profile("!local")
+@ConditionalOnProperty(
+    prefix = "aquarius.iam.captcha.password-login",
+    name = ["store"],
+    havingValue = "redis",
+    matchIfMissing = true,
+)
 class RedisPasswordLoginCaptchaIssuer(
     private val captchaStore: RedisPasswordLoginCaptchaStore,
     private val imageGenerator: PasswordLoginCaptchaImageGenerator,

@@ -15,6 +15,9 @@ springdoc:
 
 aquarius:
   iam:
+    captcha:
+      password-login:
+        store: redis
     bootstrap:
       admin:
         enabled: false
