@@ -28,6 +28,7 @@ java {
 
 extra["springModulithVersion"] = "2.0.6"
 extra["awsSdkVersion"] = "2.42.40"
+extra["testcontainersVersion"] = "2.0.5"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -64,8 +65,10 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-security-test")
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.modulith:spring-modulith-starter-test")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // Kotlin logging
@@ -95,6 +98,7 @@ dependencyManagement {
     imports {
         mavenBom("org.springframework.modulith:spring-modulith-bom:${property("springModulithVersion")}")
         mavenBom("software.amazon.awssdk:bom:${property("awsSdkVersion")}")
+        mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
     }
 }
 
