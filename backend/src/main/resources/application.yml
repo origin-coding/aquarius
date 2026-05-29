@@ -6,6 +6,9 @@ spring:
     events:
       completion-mode: delete
 
+  jpa:
+    open-in-view: false
+
 springdoc:
   api-docs:
     enabled: false

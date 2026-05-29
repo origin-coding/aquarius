@@ -19,3 +19,12 @@ spring:
 springdoc:
   api-docs:
     enabled: true
+
+aquarius:
+  iam:
+    bootstrap:
+      admin:
+        enabled: true
+        display-name: System Admin
+        password: ${SYSTEM_ADMIN_PASSWORD}
+        login-name: system-admin
